@@ -13,7 +13,6 @@ public record GameUpdateDto(
         String name,
         String description,
         GenderEnum gender,
-        int quantity,
         PlatformEnum platform,
         double price) {
 }

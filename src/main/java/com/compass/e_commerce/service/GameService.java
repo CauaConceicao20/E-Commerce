@@ -3,9 +3,11 @@ package com.compass.e_commerce.service;
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
 import com.compass.e_commerce.model.game.Game;
+import com.compass.e_commerce.model.stock.Stock;
 import com.compass.e_commerce.repository.GameRepository;
-import org.springframework.data.domain.Example;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +21,9 @@ public class GameService {
         this.gameRepository = gameRepository;
     }
 
+    @Transactional
     public Game create(Game game) {
+        //stockService.create(stock);
         return gameRepository.save(game);
     }
 
@@ -43,9 +47,6 @@ public class GameService {
         }
         if (gameUpdateDto.gender() != null) {
             game.setGender(gameUpdateDto.gender());
-        }
-        if (gameUpdateDto.quantity() > 0) {
-            game.setQuantity(gameUpdateDto.quantity());
         }
         if (gameUpdateDto.platform() != null) {
             game.setPlatform(gameUpdateDto.platform());

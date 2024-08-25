@@ -24,6 +24,7 @@ public class GameController {
     @PostMapping("/create")
     public ResponseEntity<GameDetailsDto> createRequest(@RequestBody @Valid GameRegistrationDto gameDto, UriComponentsBuilder uriBuilder) {
         Game game = gameService.convertDtoToEntity(gameDto);
+
         gameService.create(game);
 
         var uri = uriBuilder.path("/game/{id}").buildAndExpand(game.getId()).toUri();

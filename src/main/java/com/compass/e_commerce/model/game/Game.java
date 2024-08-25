@@ -2,9 +2,9 @@ package com.compass.e_commerce.model.game;
 
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
+import com.compass.e_commerce.model.stock.Stock;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 
 @Getter
@@ -29,9 +29,9 @@ public class Game {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
-    @Column(nullable = false)
-    @Min(1)
-    private int quantity;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "stock_id")
+    private Stock stock;
 
     @Enumerated(EnumType.STRING)
     private PlatformEnum platform;
@@ -47,7 +47,7 @@ public class Game {
         this.name = dataDto.name();
         this.description = dataDto.description();
         this.gender = dataDto.gender();
-        this.quantity = dataDto.quantity();
+        this.stock = new Stock(dataDto.stock());
         this.platform = dataDto.platform();
         this.price = dataDto.price();
     }
@@ -57,7 +57,6 @@ public class Game {
         this.name = dataDto.name();
         this.description = dataDto.description();
         this.gender = dataDto.gender();
-        this.quantity = dataDto.quantity();
         this.platform = dataDto.platform();
         this.price = dataDto.price();
     }
