@@ -1,13 +1,11 @@
 package com.compass.e_commerce.dto.role;
 
 
-import com.compass.e_commerce.annotations.UniqueName;
 import com.compass.e_commerce.model.role.RoleName;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotEmpty;
 
-import java.util.List;
 import java.util.Set;
 
 public record RoleDto(

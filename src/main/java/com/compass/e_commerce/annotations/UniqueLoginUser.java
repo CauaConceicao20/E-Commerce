@@ -1,5 +1,6 @@
 package com.compass.e_commerce.annotations;
 
+import com.compass.e_commerce.validator.UniqueLoginUserValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -10,10 +11,11 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = UniqueNameValidator.class)
-public @interface UniqueName {
+@Constraint(validatedBy = UniqueLoginUserValidator.class)
+public @interface UniqueLoginUser {
+    String message() default "The login name must be unique; a user with this name already exists.";
 
-        String message() default "Name must be unique";
-        Class<?>[] groups() default {};
-        Class<? extends Payload>[] payload() default {};
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }
