@@ -20,10 +20,20 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
+    @PostMapping("/createUser")
     public ResponseEntity<UserDetailsDto> create(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userService.convertDtoToEntity(userRegistrationDto);
-        userService.create(user, userRegistrationDto.rolesDto().roles());
+        userService.create(user);
+
+        var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(new UserDetailsDto((user)));
+    }
+
+    @PostMapping("/createUserAdmin")
+    public ResponseEntity<UserDetailsDto> createAdmin(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
+        User user = userService.convertDtoToEntity(userRegistrationDto);
+        userService.createUserAdmin(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
 

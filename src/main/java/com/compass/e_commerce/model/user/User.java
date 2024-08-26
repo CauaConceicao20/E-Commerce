@@ -30,6 +30,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(unique = true)
+    private String email;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_user_roles", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -38,6 +41,7 @@ public class User {
     public User(UserRegistrationDto userRegistrationDto) {
         this.login = userRegistrationDto.login();
         this.password = userRegistrationDto.password();
+        this.email = userRegistrationDto.email();
     }
 }
 
