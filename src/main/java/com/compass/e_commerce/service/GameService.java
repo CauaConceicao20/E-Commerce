@@ -23,7 +23,6 @@ public class GameService {
 
     @Transactional
     public Game create(Game game) {
-        //stockService.create(stock);
         return gameRepository.save(game);
     }
 

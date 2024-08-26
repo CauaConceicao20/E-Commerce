@@ -1,5 +1,6 @@
 package com.compass.e_commerce.model.stock;
 
+import com.compass.e_commerce.dto.stock.StockDto;
 import com.compass.e_commerce.model.game.Game;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -10,7 +11,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 @Entity
 @Table(name = "tb_stock")
 public class Stock {
@@ -19,7 +20,6 @@ public class Stock {
     private Long id;
 
     @Min(1)
-    @NotEmpty
     private int quantity;
 
     @OneToOne(mappedBy = "stock")
@@ -28,6 +28,5 @@ public class Stock {
     public Stock(StockDto stockDto) {
         this.quantity = stockDto.quantity();
     }
-
 
 }

@@ -1,4 +1,4 @@
-package com.compass.e_commerce.model.stock;
+package com.compass.e_commerce.dto.stock;
 
 import jakarta.validation.constraints.Min;
 

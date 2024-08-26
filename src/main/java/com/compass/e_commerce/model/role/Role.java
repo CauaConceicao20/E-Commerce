@@ -1,7 +1,12 @@
 package com.compass.e_commerce.model.role;
 
+import com.compass.e_commerce.annotations.UniqueName;
+import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.model.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.HashSet;
@@ -20,8 +25,14 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true)
     private RoleName name;
 
     @ManyToMany(mappedBy = "roles")
     private Set<User> users = new HashSet<User>();
+
+    public Role(RoleRegistrationDto roleRegistrationDto) {
+        this.name = roleRegistrationDto.name();
+    }
 }

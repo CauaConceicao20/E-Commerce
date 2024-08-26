@@ -3,7 +3,6 @@ package com.compass.e_commerce.dto.game;
 import com.compass.e_commerce.model.game.Game;
 import com.compass.e_commerce.model.game.GenderEnum;
 import com.compass.e_commerce.model.game.PlatformEnum;
-import com.compass.e_commerce.model.stock.StockDto;
 
 public record GameListDto(
         Long id,
