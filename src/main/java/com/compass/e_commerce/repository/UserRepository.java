@@ -11,4 +11,6 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByLogin(String login);
+
+    boolean existsByEmail(String email);
 }

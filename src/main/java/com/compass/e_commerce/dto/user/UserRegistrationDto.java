@@ -1,5 +1,6 @@
 package com.compass.e_commerce.dto.user;
 
+import com.compass.e_commerce.annotations.UniqueEmail;
 import com.compass.e_commerce.annotations.UniqueLoginUser;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +17,7 @@ public record UserRegistrationDto(
         String password,
 
         @Email
+        @UniqueEmail
         @NotBlank
         String email
 
