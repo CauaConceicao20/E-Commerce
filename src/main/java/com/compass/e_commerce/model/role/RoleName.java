@@ -1,6 +1,16 @@
 package com.compass.e_commerce.model.role;
 
 public enum RoleName {
-    ADMIN,
-    USER
+    ADMIN("admin"),
+    USER("user");
+
+    private String role;
+
+    RoleName(String role) {
+        this.role = role;
+    }
+
+    public String getRole() {
+        return role;
+    }
 }

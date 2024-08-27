@@ -16,7 +16,7 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
-    @PostMapping("/created")
+    @PostMapping("/create")
     public ResponseEntity<Role> create(@RequestBody @Valid RoleRegistrationDto roleRegistrationDto) {
         Role role = roleService.convertDtoToEntity(roleRegistrationDto);
         roleService.create(role);

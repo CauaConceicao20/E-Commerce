@@ -7,6 +7,8 @@ import com.compass.e_commerce.model.user.User;
 import com.compass.e_commerce.repository.RoleRepository;
 import com.compass.e_commerce.repository.UserRepository;
 //import com.compass.e_commerce.repository.UserRoleRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -20,17 +22,21 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User convertDtoToEntity(UserRegistrationDto userRegistrationDto) {
         return new User(userRegistrationDto);
     }
 
-    public User create(User user) {
+    public User registerUser(User user) {
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encryptedPassword);
         Role role = roleRepository.findByName(RoleName.USER)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
 
@@ -38,7 +44,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User createUserAdmin(User user) {
+    public User registerUserAdmin(User user) {
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encryptedPassword);
         Set<Role> roles = new HashSet<Role>(roleRepository.findAll());
 
         if(roles.isEmpty()) {

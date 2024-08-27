@@ -3,14 +3,14 @@ package com.compass.e_commerce.model.user;
 
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.model.role.Role;
+import com.compass.e_commerce.model.role.RoleName;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -36,7 +36,7 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_user_roles", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<Role>();
+    private Set<Role> roles;
 
     public User(UserRegistrationDto userRegistrationDto) {
         this.login = userRegistrationDto.login();
