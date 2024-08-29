@@ -11,7 +11,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "tb_stock")
 public class Stock {
@@ -19,7 +19,7 @@ public class Stock {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Min(1)
+    @Min(0)
     private int quantity;
 
     @OneToOne(mappedBy = "stock")
@@ -27,6 +27,20 @@ public class Stock {
 
     public Stock(StockDto stockDto) {
         this.quantity = stockDto.quantity();
+    }
+
+    public void stockReduction(int quantityReduction) {
+        if (this.quantity < quantityReduction || quantityReduction <= 0) {
+            throw new IllegalArgumentException("Quantity reduction must be positive and cannot exceed the available stock.");
+        }
+        this.quantity = quantity - quantityReduction;
+    }
+
+    public void stockReplenishment(int quantityReplenishment) {
+        if (this.quantity < quantityReplenishment || quantityReplenishment <= 0) {
+            throw new IllegalArgumentException("Quantity replenishment must be positive.");
+        }
+        this.quantity = quantity + quantityReplenishment;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.compass.e_commerce.service;
 
+import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.model.role.Role;
 import com.compass.e_commerce.model.role.RoleName;
@@ -7,6 +8,10 @@ import com.compass.e_commerce.model.user.User;
 import com.compass.e_commerce.repository.RoleRepository;
 import com.compass.e_commerce.repository.UserRepository;
 //import com.compass.e_commerce.repository.UserRoleRepository;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,5 +60,20 @@ public class UserService {
             user.setRoles(roles);
             return userRepository.save(user);
         }
+    }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public Long getAuthenticatedUserId() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            var userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            if (userDetails != null) {
+                return userDetails.getId();
+            }
+        }
+        throw new UsernameNotFoundException("User Not Found");
     }
 }
