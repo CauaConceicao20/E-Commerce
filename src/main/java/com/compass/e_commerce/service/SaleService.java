@@ -8,22 +8,25 @@ import com.compass.e_commerce.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.*;
 
 @Service
-public class SaleService {
+    public class SaleService {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private GameService gameService;
-    @Autowired
-    private StockService stockService;
+        @Autowired
+        private UserService userService;
+        @Autowired
+        private GameService gameService;
+        @Autowired
+        private StockService stockService;
 
-    private final SaleRepository saleRepository;
+        private final SaleRepository saleRepository;
 
 
     public SaleService(SaleRepository saleRepository) {
@@ -55,6 +58,27 @@ public class SaleService {
 
         return saleRepository.save(sale);
     }
+    public LocalDateTime formaterDate(LocalDate date) {
+        LocalDateTime dateDay = date.atStartOfDay();
+        return dateDay;
+    }
 
+    public List<Sale> saleReportsDay(LocalDate date) {
+        return saleRepository.findByDateTime(date);
+    }
+
+    public List<Sale> saleReportsWeek(LocalDate date) {
+        LocalDate firstDayOfWeek = date.with(WeekFields.ISO.getFirstDayOfWeek());
+        LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
+
+        return saleRepository.findBySaleDateBetween(firstDayOfWeek, lastDayOfWeek);
+    }
+
+    public List<Sale> generateReportByMonth(LocalDate date) {
+        LocalDate firstDayOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
+
+        return saleRepository.findBySaleDateBetween(firstDayOfMonth, lastDayOfMonth);
+    }
 
 }

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -41,5 +42,24 @@ public class Sale {
 
     public Sale(Map<Game, Integer> games) {
         this.games = games;
+    }
+
+    public Map<String, Map<Integer, Double>> returnGameName() {
+        Map<String, Map<Integer, Double>> mapNameGame = new HashMap<>();
+
+        for (Map.Entry<Game, Integer> mapGames : getGames().entrySet()) {
+            Game game = mapGames.getKey();
+            Integer quantity = mapGames.getValue();
+
+            if (game != null) {
+                Map<Integer, Double> quantityPriceMap = mapNameGame.get(game.getName());
+                if (quantityPriceMap == null) {
+                    quantityPriceMap = new HashMap<>();
+                    mapNameGame.put(game.getName(), quantityPriceMap);
+                }
+                quantityPriceMap.put(quantity, game.getPrice() * quantity);
+            }
+        }
+        return mapNameGame;
     }
 }

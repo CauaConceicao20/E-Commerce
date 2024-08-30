@@ -12,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
+@ToString
 @Entity
 @Table(name = "tb_games")
 public class Game {
