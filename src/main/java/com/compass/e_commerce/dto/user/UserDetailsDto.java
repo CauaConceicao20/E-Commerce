@@ -1,6 +1,6 @@
 package com.compass.e_commerce.dto.user;
 
-import com.compass.e_commerce.model.user.User;
+import com.compass.e_commerce.model.User;
 
 public record UserDetailsDto(Long id, String login, String password, String email) {
     public UserDetailsDto(User user) {

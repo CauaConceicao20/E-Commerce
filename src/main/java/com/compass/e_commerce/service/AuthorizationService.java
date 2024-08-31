@@ -1,7 +1,7 @@
 package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.config.security.UserDetailsImpl;
-import com.compass.e_commerce.model.user.User;
+import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

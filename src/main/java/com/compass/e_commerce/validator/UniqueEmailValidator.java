@@ -1,7 +1,6 @@
 package com.compass.e_commerce.validator;
 
 import com.compass.e_commerce.annotations.UniqueEmail;
-import com.compass.e_commerce.model.user.User;
 import com.compass.e_commerce.repository.UserRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

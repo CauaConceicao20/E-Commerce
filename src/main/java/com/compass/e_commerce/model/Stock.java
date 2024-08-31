@@ -1,11 +1,12 @@
-package com.compass.e_commerce.model.stock;
+package com.compass.e_commerce.model;
 
 import com.compass.e_commerce.dto.stock.StockDto;
-import com.compass.e_commerce.model.game.Game;
+import com.compass.e_commerce.model.Game;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -14,7 +15,10 @@ import lombok.*;
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "tb_stock")
-public class Stock {
+public class Stock implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

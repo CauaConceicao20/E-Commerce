@@ -1,7 +1,7 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.dto.role.RoleRegistrationDto;
-import com.compass.e_commerce.model.role.Role;
+import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.service.RoleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,3 +7,5 @@ public record StockDto(
         int quantity
 ) {
 }
+
+

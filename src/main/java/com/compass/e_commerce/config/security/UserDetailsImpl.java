@@ -1,8 +1,8 @@
 package com.compass.e_commerce.config.security;
 
-import com.compass.e_commerce.model.role.Role;
-import com.compass.e_commerce.model.role.RoleName;
-import com.compass.e_commerce.model.user.User;
+import com.compass.e_commerce.model.Role;
+import com.compass.e_commerce.model.enums.RoleNameEnum;
+import com.compass.e_commerce.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +24,7 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<Role> roles = new HashSet<>(user.getRoles());
         for(Role role : roles) {
-            if(role.getName() == RoleName.ADMIN) return List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"));
+            if(role.getName() == RoleNameEnum.ADMIN) return List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"));
         }
         return List.of(new SimpleGrantedAuthority("USER"));
 

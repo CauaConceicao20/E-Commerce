@@ -1,9 +1,7 @@
 package com.compass.e_commerce.service;
 
-import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.role.RoleRegistrationDto;
-import com.compass.e_commerce.model.game.Game;
-import com.compass.e_commerce.model.role.Role;
+import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 

@@ -1,10 +1,9 @@
 package com.compass.e_commerce.controller;
 
-import com.compass.e_commerce.dto.game.GameListDto;
+import com.compass.e_commerce.dto.sale.SaleListDto;
 import com.compass.e_commerce.dto.sale.SaleRegistrationDto;
 import com.compass.e_commerce.dto.sale.SaleReportListDto;
-import com.compass.e_commerce.dto.sale.SaleReportRequestDto;
-import com.compass.e_commerce.model.sale.Sale;
+import com.compass.e_commerce.model.Sale;
 import com.compass.e_commerce.service.SaleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/sale")
@@ -33,35 +31,39 @@ public class SaleController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<List<SaleListDto>> list() {
+        var saleList = saleService.list().stream().map(SaleListDto::new).toList();
+        return ResponseEntity.ok().body(saleList);
+    }
+
     @GetMapping("/reportDay")
     public ResponseEntity <List<SaleReportListDto>> generationReportDay(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        var saleList = saleService.saleReportsDay(date).stream().map(SaleReportListDto::new).toList();
+        List<SaleReportListDto> saleList = saleService.getSalesWithProducts(saleService.saleReportsDay(date));
 
         if(!saleList.isEmpty()) {
             return ResponseEntity.ok().body(saleList);
         }
         return ResponseEntity.noContent().build();
-
-
     }
 
     @GetMapping("/reportWeek")
     public ResponseEntity<List<SaleReportListDto>> generationReportWeek(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        var saleList = saleService.saleReportsWeek(date).stream().map(SaleReportListDto::new).toList();
+        List<SaleReportListDto> saleList = saleService.getSalesWithProducts(saleService.saleReportsWeek(date));
         if(!saleList.isEmpty()) {
             return ResponseEntity.ok().body(saleList);
         }
         return ResponseEntity.noContent().build();
-
     }
 
     @GetMapping("/reportMonth")
     public ResponseEntity<List<SaleReportListDto>> generationReportMonth(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        var saleList = saleService.generateReportByMonth(date).stream().map(SaleReportListDto::new).toList();
+        List<SaleReportListDto> saleList = saleService.getSalesWithProducts(saleService.saleReportsMonth(date));
         if(!saleList.isEmpty()) {
             return ResponseEntity.ok().body(saleList);
         }
         return ResponseEntity.noContent().build();
-
     }
 }
+
+

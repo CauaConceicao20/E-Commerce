@@ -1,16 +1,9 @@
-package com.compass.e_commerce.model.role;
+package com.compass.e_commerce.model;
 
 import com.compass.e_commerce.dto.role.RoleRegistrationDto;
-import com.compass.e_commerce.model.user.User;
+import com.compass.e_commerce.model.enums.RoleNameEnum;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Getter
@@ -28,7 +21,7 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     @Column(unique = true)
-    private RoleName name;
+    private RoleNameEnum name;
 
     public Role(RoleRegistrationDto roleRegistrationDto) {
         this.name = roleRegistrationDto.name();

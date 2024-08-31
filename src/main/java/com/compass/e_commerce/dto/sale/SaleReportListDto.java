@@ -1,29 +1,32 @@
 package com.compass.e_commerce.dto.sale;
 
-import com.compass.e_commerce.model.game.Game;
-import com.compass.e_commerce.model.sale.Sale;
+import com.compass.e_commerce.dto.game.GameDto;
+import com.compass.e_commerce.model.SaleGame;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public record SaleReportListDto(
-        Long id,
-        LocalDateTime date,
-        String nameUser,
-        String emailUser,
-        Map<String, Map<Integer,Double>> games
-
+        Long saleId,
+        LocalDateTime saleDate,
+        String userName,
+        List<GameDto> products
 
 ) {
-    public SaleReportListDto(Sale sale) {
-        this(sale.getId(),
-                sale.getDateTime(),
-                sale.getUser().getLogin(),
-                sale.getUser().getEmail(),
-                sale.returnGameName()
+/*
+    public SaleReportListDto(SaleGame saleGame) {
+        this(saleGame.getSale().getId(),
+                saleGame.getSale().getDateTime(),
+                saleGame.getSale().getUser().getLogin(),
+                saleGame.getSale().getUser().getEmail(),
+                saleGame.getGame().getName(),
+                saleGame.getGame().getDescription(),
+                saleGame.getQuantity(),
+                saleGame.getPrice()
+
         );
     }
+
+ */
 }
 

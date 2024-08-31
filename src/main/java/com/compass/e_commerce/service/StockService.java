@@ -1,7 +1,6 @@
 package com.compass.e_commerce.service;
 
-import com.compass.e_commerce.model.game.Game;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.compass.e_commerce.model.Game;
 import org.springframework.stereotype.Service;
 
 @Service

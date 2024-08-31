@@ -4,12 +4,11 @@ import com.compass.e_commerce.dto.game.GameDetailsDto;
 import com.compass.e_commerce.dto.game.GameListDto;
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
-import com.compass.e_commerce.model.game.Game;
+import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.service.GameService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 

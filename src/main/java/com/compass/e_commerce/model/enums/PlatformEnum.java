@@ -1,4 +1,4 @@
-package com.compass.e_commerce.model.game;
+package com.compass.e_commerce.model.enums;
 
 public enum PlatformEnum {
     PC,

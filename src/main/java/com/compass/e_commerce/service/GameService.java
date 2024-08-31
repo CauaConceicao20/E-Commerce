@@ -2,10 +2,10 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
-import com.compass.e_commerce.model.game.Game;
-import com.compass.e_commerce.model.stock.Stock;
+import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.repository.GameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +22,7 @@ public class GameService {
     }
 
     @Transactional
+    @CacheEvict(value = "games", allEntries = true)
     public Game create(Game game) {
         return gameRepository.save(game);
     }
@@ -30,8 +31,13 @@ public class GameService {
         return new Game(dataDto);
     }
 
+    @Cacheable("games")
     public List<Game> list() {
         return gameRepository.findByActiveTrue();
+    }
+
+    public Optional<Game> getId(Long id) {
+        return gameRepository.findById(id);
     }
 
     public Game update(GameUpdateDto gameUpdateDto) {
@@ -58,10 +64,8 @@ public class GameService {
         return game;
     }
 
-    public Optional<Game> getId(Long id) {
-        return gameRepository.findById(id);
-    }
 
+    @CacheEvict(value = "games", allEntries = true)
     public void delete(Long id) {
         gameRepository.deleteById(id);
     }

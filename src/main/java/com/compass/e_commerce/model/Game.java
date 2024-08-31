@@ -1,11 +1,17 @@
-package com.compass.e_commerce.model.game;
+package com.compass.e_commerce.model;
 
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
-import com.compass.e_commerce.model.stock.Stock;
+import com.compass.e_commerce.model.enums.GenderEnum;
+import com.compass.e_commerce.model.enums.PlatformEnum;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.*;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,7 +21,9 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "tb_games")
-public class Game {
+public class Game implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +48,9 @@ public class Game {
     @Column(nullable = false)
     @DecimalMin("1.0")
     private double price;
+
+    @OneToMany(mappedBy = "id.game", cascade = CascadeType.ALL)
+    private Set<SaleGame> saleGame = new HashSet<>();
 
     private boolean active;
 

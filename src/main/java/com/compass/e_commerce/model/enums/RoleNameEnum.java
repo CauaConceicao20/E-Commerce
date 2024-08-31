@@ -1,12 +1,12 @@
-package com.compass.e_commerce.model.role;
+package com.compass.e_commerce.model.enums;
 
-public enum RoleName {
+public enum RoleNameEnum {
     ADMIN("admin"),
     USER("user");
 
     private String role;
 
-    RoleName(String role) {
+    RoleNameEnum(String role) {
         this.role = role;
     }
 

@@ -1,14 +1,14 @@
-package com.compass.e_commerce.model.sale;
+package com.compass.e_commerce.model;
 
-import com.compass.e_commerce.dto.sale.SaleRegistrationDto;
-import com.compass.e_commerce.model.game.Game;
-import com.compass.e_commerce.model.user.User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +31,10 @@ public class Sale {
     @Column(nullable = true)
     private LocalDateTime dateTime;
 
+    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL)
+    private Set<SaleGame> salegame = new HashSet<>();
+/*
+
     @ElementCollection
     @CollectionTable(
             name = "tb_sale_games",
@@ -39,8 +43,7 @@ public class Sale {
     @MapKeyJoinColumn(name = "game_id")
     @Column(name = "quantity")
     private Map<Game, Integer> games = new HashMap<>();
-
-    public Sale(Map<Game, Integer> games) {
+  public Sale(Map<Game, Integer> games) {
         this.games = games;
     }
 
@@ -62,4 +65,6 @@ public class Sale {
         }
         return mapNameGame;
     }
+
+ */
 }
