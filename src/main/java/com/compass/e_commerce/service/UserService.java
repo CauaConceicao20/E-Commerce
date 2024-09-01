@@ -72,4 +72,17 @@ public class UserService {
         }
         throw new UsernameNotFoundException("User Not Found");
     }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public User findByLogin(String login) {
+        return userRepository.findByLogin(login);
+    }
+
+    public User changePassword(User user, String newPassword) {
+        user.setPassword(newPassword);
+        return userRepository.save(user);
+    }
 }

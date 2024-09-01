@@ -30,6 +30,8 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/registerUser").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/email/sendEmailForgotPassword").permitAll()
+                        .requestMatchers(HttpMethod.POST, "resetPassword/request").permitAll()
                         .requestMatchers(HttpMethod.POST, "/role/create").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/auth/registerAdmin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/game/list").hasRole("ADMIN")
