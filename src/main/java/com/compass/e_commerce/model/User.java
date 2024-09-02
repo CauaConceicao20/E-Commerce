@@ -29,6 +29,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Sale> sales = new HashSet<>();
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_user_roles", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

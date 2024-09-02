@@ -1,7 +1,6 @@
 package com.compass.e_commerce.model;
 
 import com.compass.e_commerce.model.pk.SaleGamePK;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -27,16 +26,12 @@ public class SaleGame {
         this.quantity = quantity;
     }
 
-
-    public String getGameName() {
-        return id.getGame().getName();
-    }
-
     public Sale getSale() {
         return id.getSale();
     }
+
     public void setSale(Sale sale) {
-       id.setSale(sale);
+        id.setSale(sale);
     }
 
     public Game getGame() {

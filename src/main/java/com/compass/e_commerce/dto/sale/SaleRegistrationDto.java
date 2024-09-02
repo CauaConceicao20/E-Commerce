@@ -1,26 +1,24 @@
 package com.compass.e_commerce.dto.sale;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Positive;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 public record SaleRegistrationDto(
+        @Valid
         @NotEmpty
-        List<SaleGameDto> games
+        List<SaleGameRegistrationDto> games
 ) {
-    public static record SaleGameDto(
+    public static record SaleGameRegistrationDto(
+
+            @Positive
             @NotNull
             Long gameId,
-            @Size(min = 1)
+            @Positive
             Integer quantity
     ) {
-
     }
 }

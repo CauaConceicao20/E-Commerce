@@ -33,13 +33,13 @@ public class SaleController {
 
     @GetMapping("/list")
     public ResponseEntity<List<SaleListDto>> list() {
-        var saleList = saleService.list().stream().map(SaleListDto::new).toList();
+        var saleList = saleService.list();
         return ResponseEntity.ok().body(saleList);
     }
 
     @GetMapping("/reportDay")
     public ResponseEntity <List<SaleReportListDto>> generationReportDay(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<SaleReportListDto> saleList = saleService.getSalesWithProducts(saleService.saleReportsDay(date));
+        var saleList  = saleService.saleReportsDay(date).stream().map(SaleReportListDto::new).toList();
 
         if(!saleList.isEmpty()) {
             return ResponseEntity.ok().body(saleList);
@@ -49,7 +49,7 @@ public class SaleController {
 
     @GetMapping("/reportWeek")
     public ResponseEntity<List<SaleReportListDto>> generationReportWeek(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<SaleReportListDto> saleList = saleService.getSalesWithProducts(saleService.saleReportsWeek(date));
+        var saleList  = saleService.saleReportsWeek(date).stream().map(SaleReportListDto::new).toList();
         if(!saleList.isEmpty()) {
             return ResponseEntity.ok().body(saleList);
         }
@@ -58,12 +58,13 @@ public class SaleController {
 
     @GetMapping("/reportMonth")
     public ResponseEntity<List<SaleReportListDto>> generationReportMonth(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<SaleReportListDto> saleList = saleService.getSalesWithProducts(saleService.saleReportsMonth(date));
+        var saleList  = saleService.saleReportsMonth(date).stream().map(SaleReportListDto::new).toList();
         if(!saleList.isEmpty()) {
             return ResponseEntity.ok().body(saleList);
         }
         return ResponseEntity.noContent().build();
     }
+
 }
 
 

@@ -36,6 +36,7 @@ public class Sale implements Serializable {
     private LocalDateTime dateTime;
 
     @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL)
-    private Set<SaleGame> salegame = new HashSet<>();
+    private Set<SaleGame> saleGame = new HashSet<>();
 
+    private double totalPrice;
 }
