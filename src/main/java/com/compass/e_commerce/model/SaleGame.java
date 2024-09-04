@@ -3,8 +3,11 @@ package com.compass.e_commerce.model;
 import com.compass.e_commerce.model.pk.SaleGamePK;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -13,7 +16,9 @@ import lombok.*;
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "tb_sale_games")
-public class SaleGame {
+public class SaleGame implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @EmbeddedId
     SaleGamePK id = new SaleGamePK();

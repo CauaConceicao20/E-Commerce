@@ -11,10 +11,11 @@ import java.util.List;
 
 @Repository
 public interface SaleRepository extends JpaRepository<Sale, Long> {
-    @Query("SELECT s FROM Sale s WHERE FUNCTION('DATE', s.dateTime) = :date")
-    List<Sale> findByDateTime(@Param("date") LocalDate date);
+    @Query("SELECT s FROM Sale s WHERE FUNCTION('DATE', s.confirmationTimestamp) = :date AND s.stageSale = 'CONFIRMED'")
+    List<Sale> findByConfirmationDateAndStage(@Param("date") LocalDate date);
 
-    @Query("SELECT s FROM Sale s WHERE FUNCTION('DATE', s.dateTime) BETWEEN :startDate AND :endDate")
-    List<Sale> findBySaleDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    @Query("SELECT s FROM Sale s WHERE FUNCTION('DATE', s.confirmationTimestamp) BETWEEN :startDate AND :endDate AND s.stageSale = 'CONFIRMED'")
+    List<Sale> findByConfirmationDateBetweenAndStage(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
 
 }

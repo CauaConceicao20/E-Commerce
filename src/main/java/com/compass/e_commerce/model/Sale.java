@@ -1,5 +1,6 @@
 package com.compass.e_commerce.model;
 
+import com.compass.e_commerce.model.enums.StageSale;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -32,11 +33,18 @@ public class Sale implements Serializable {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false)
+    private LocalDateTime creationTimestamp;
+
     @Column(nullable = true)
-    private LocalDateTime dateTime;
+    private LocalDateTime confirmationTimestamp;
 
     @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL)
     private Set<SaleGame> saleGame = new HashSet<>();
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StageSale stageSale;
 
     private double totalPrice;
 }

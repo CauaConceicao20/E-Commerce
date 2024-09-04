@@ -5,6 +5,9 @@ import com.compass.e_commerce.model.enums.RoleNameEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Getter
 @Setter
@@ -22,6 +25,9 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(unique = true)
     private RoleNameEnum name;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
 
     public Role(RoleRegistrationDto roleRegistrationDto) {
         this.name = roleRegistrationDto.name();

@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
 
 public record SaleReportListDto(
         Long saleId,
-        LocalDateTime saleDate,
+        LocalDateTime getCreationTimestamp,
+        LocalDateTime confirmationTimestamp,
         String userName,
         String userEmail,
         Set<SaleGameListDto> games
@@ -19,7 +20,8 @@ public record SaleReportListDto(
 
     public SaleReportListDto(Sale sale) {
         this(sale.getId(),
-                sale.getDateTime(),
+                sale.getCreationTimestamp(),
+                sale.getConfirmationTimestamp(),
                 sale.getUser().getLogin(),
                 sale.getUser().getEmail(),
                 sale.getSaleGame().stream()

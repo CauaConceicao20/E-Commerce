@@ -72,4 +72,8 @@ public class Game implements Serializable {
         this.platform = dataDto.platform();
         this.price = dataDto.price();
     }
+
+    public boolean getActive() {
+        return this.active;
+    }
 }

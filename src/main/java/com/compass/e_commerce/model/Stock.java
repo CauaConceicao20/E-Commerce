@@ -37,13 +37,13 @@ public class Stock implements Serializable {
         if (this.quantity < quantityReduction || quantityReduction <= 0) {
             throw new IllegalArgumentException("Quantity reduction must be positive and cannot exceed the available stock.");
         }
-        this.quantity = quantity - quantityReduction;
+        this.quantity -= quantityReduction;
     }
 
     public void stockReplenishment(int quantityReplenishment) {
-        if (this.quantity < quantityReplenishment || quantityReplenishment <= 0) {
+        if (quantityReplenishment <= 0) {
             throw new IllegalArgumentException("Quantity replenishment must be positive.");
         }
-        this.quantity = quantity + quantityReplenishment;
+        this.quantity += quantityReplenishment;
     }
 }

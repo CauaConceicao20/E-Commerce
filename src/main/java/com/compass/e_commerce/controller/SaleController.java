@@ -1,8 +1,6 @@
 package com.compass.e_commerce.controller;
 
-import com.compass.e_commerce.dto.sale.SaleListDto;
-import com.compass.e_commerce.dto.sale.SaleRegistrationDto;
-import com.compass.e_commerce.dto.sale.SaleReportListDto;
+import com.compass.e_commerce.dto.sale.*;
 import com.compass.e_commerce.model.Sale;
 import com.compass.e_commerce.service.SaleService;
 import jakarta.validation.Valid;
@@ -37,6 +35,12 @@ public class SaleController {
         return ResponseEntity.ok().body(saleList);
     }
 
+    @PutMapping("/confirm/{id}")
+    public ResponseEntity<SaleDetailsDto> confirmSale(@PathVariable Long id) {
+        Sale sale = saleService.confirmedSale(id);
+        return ResponseEntity.ok().body(new SaleDetailsDto(sale));
+    }
+
     @GetMapping("/reportDay")
     public ResponseEntity <List<SaleReportListDto>> generationReportDay(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         var saleList  = saleService.saleReportsDay(date).stream().map(SaleReportListDto::new).toList();
@@ -64,6 +68,25 @@ public class SaleController {
         }
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<SaleDetailsDto> updateSale(@RequestBody @Valid SaleUpdateDto saleUpdateDto) {
+        var sale = saleService.update(saleUpdateDto);
+        return ResponseEntity.ok().body(new SaleDetailsDto(sale));
+    }
+
+    @PutMapping("/swap")
+    public ResponseEntity<SaleDetailsDto> swapGame(@RequestBody @Valid SwapGameDto swapGameDto) {
+        Sale sale = saleService.swapGame(swapGameDto);
+        return ResponseEntity.ok().body(new SaleDetailsDto(sale));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        saleService.delete(id);
+        return ResponseEntity.ok().build();
+    }
+
 
 }
 

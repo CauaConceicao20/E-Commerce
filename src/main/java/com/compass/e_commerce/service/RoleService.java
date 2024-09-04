@@ -21,4 +21,8 @@ public class RoleService {
     public Role convertDtoToEntity(RoleRegistrationDto roleRegistrationDto) {
         return new Role(roleRegistrationDto);
     }
+
+    public void delete(Long id) {
+        roleRepository.deleteById(id);
+    }
 }

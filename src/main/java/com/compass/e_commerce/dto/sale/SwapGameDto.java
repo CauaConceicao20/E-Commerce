@@ -7,17 +7,21 @@ import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 
-public record SaleRegistrationDto(
+public record SwapGameDto(
+        @NotNull
+        Long id,
         @Valid
         @NotEmpty
-        List<SaleGameRegistrationDto> games
+        List<SwapGameListDto> swapGames
 ) {
-    public static record SaleGameRegistrationDto(
-            @Positive
+    public static record SwapGameListDto(
             @NotNull
-            Long gameId,
+            Long currentGameId,
+            @NotNull
+            Long newGameId,
             @Positive
             Integer quantity
     ) {
+
     }
 }

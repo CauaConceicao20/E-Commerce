@@ -2,12 +2,15 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
+import com.compass.e_commerce.dto.user.UserUpdateDto;
+import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.repository.RoleRepository;
 import com.compass.e_commerce.repository.UserRepository;
 //import com.compass.e_commerce.repository.UserRoleRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,7 +43,7 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         Role role = roleRepository.findByName(RoleNameEnum.USER)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Role not found"));
 
         user.setRoles(Set.of(role));
         return userRepository.save(user);
@@ -51,7 +55,7 @@ public class UserService {
         Set<Role> roles = new HashSet<Role>(roleRepository.findAll());
 
         if(roles.isEmpty()) {
-            throw new RuntimeException("Role not found");
+            throw new EntityNotFoundException("Role not found");
         }else {
             user.setRoles(roles);
             return userRepository.save(user);
@@ -73,6 +77,10 @@ public class UserService {
         throw new UsernameNotFoundException("User Not Found");
     }
 
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -84,5 +92,24 @@ public class UserService {
     public User changePassword(User user, String newPassword) {
         user.setPassword(newPassword);
         return userRepository.save(user);
+    }
+
+    public User update(UserUpdateDto userUpdateDto) {
+        Optional<User> userOp = findById(userUpdateDto.id());
+        User user = userOp.get();
+
+        if (userUpdateDto.login() != null) {
+            user.setLogin(userUpdateDto.login());
+        }
+        if (userUpdateDto.email() != null) {
+            user.setEmail(userUpdateDto.email());
+        }
+        userRepository.save(user);
+
+        return user;
+    }
+
+    public void delete(Long id) {
+        userRepository.deleteById(id);
     }
 }
