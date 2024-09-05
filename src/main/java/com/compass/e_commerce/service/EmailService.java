@@ -2,6 +2,7 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.user.EmailDto;
 import com.compass.e_commerce.model.User;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -25,14 +26,14 @@ public class EmailService {
         String token = passwordResetService.generateTokenReset(email.email());
         message.setTo(email.email());
         message.setSubject("Reset password");
-        message.setText("Token to reset the password:" + token);
+        message.setText("Token para redefinir a senha: " + token);
         mailSender.send(message);
     }
 
     public User validateEmail(String email) {
         User user = usersService.findByEmail(email);
         if(user == null) {
-            throw new RuntimeException("Non-existent email");
+            throw new EntityNotFoundException("E-mail inexistente email: " + email);
         }
         return user;
     }

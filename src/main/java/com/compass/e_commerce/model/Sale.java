@@ -39,7 +39,7 @@ public class Sale implements Serializable {
     @Column(nullable = true)
     private LocalDateTime confirmationTimestamp;
 
-    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SaleGame> saleGame = new HashSet<>();
 
     @Column(nullable = false)

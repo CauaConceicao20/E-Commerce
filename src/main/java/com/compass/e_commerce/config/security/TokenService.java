@@ -56,7 +56,7 @@ public class TokenService {
                     .getSubject();
 
         } catch (JWTVerificationException exception){
-           throw new JWTVerificationException("Token invalid or expired!", exception);
+           throw new JWTVerificationException("Token inválido ou expirado", exception);
         }
     }
 

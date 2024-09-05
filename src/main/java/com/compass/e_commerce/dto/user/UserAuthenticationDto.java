@@ -8,6 +8,6 @@ public record UserAuthenticationDto(
         @NotBlank
         String login,
         @NotBlank
-        @Size(min = 8, max = 12)
+        @Size(min = 8, max = 14)
         String password) {
 }

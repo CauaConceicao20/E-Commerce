@@ -12,8 +12,7 @@ public record UserRegistrationDto(
         @UniqueLoginUser
         String login,
 
-        @Size(min = 8)
-        @NotBlank
+        @Size(min = 8, max = 14)
         String password,
 
         @Email

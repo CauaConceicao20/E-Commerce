@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.*;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -75,5 +76,14 @@ public class Game implements Serializable {
 
     public boolean getActive() {
         return this.active;
+    }
+
+    @CacheEvict(value = "games", allEntries = true)
+    public void isActive() {
+        this.active = true;
+    }
+    @CacheEvict(value = "games", allEntries = true)
+    public void isInactive() {
+        this.active = false;
     }
 }

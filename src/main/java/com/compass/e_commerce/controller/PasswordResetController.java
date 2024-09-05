@@ -1,6 +1,8 @@
 package com.compass.e_commerce.controller;
 
+import com.compass.e_commerce.dto.user.ResetPasswordDto;
 import com.compass.e_commerce.service.PasswordResetService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +15,8 @@ public class PasswordResetController {
     private PasswordResetService passwordResetService;
 
     @PostMapping("/request")
-    public ResponseEntity<Void> resetPassword(@RequestParam("newPassword") String newPassword, @RequestParam("token") String token ) {
-        passwordResetService.changePassword(newPassword, token);
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDto resetPasswordDto) {
+        passwordResetService.changePassword(resetPasswordDto.newPassword(), resetPasswordDto.token());
         return ResponseEntity.ok().build();
     }
 

@@ -1,11 +1,14 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.dto.game.GameDetailsDto;
+import com.compass.e_commerce.dto.user.AdminUpdateDto;
 import com.compass.e_commerce.dto.user.UserDetailsDto;
 import com.compass.e_commerce.dto.user.UserListDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.model.User;
+import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.service.UserService;
+import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,9 +30,15 @@ public class UserController {
         return ResponseEntity.ok().body(userList);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/updateUser")
     public ResponseEntity<UserDetailsDto> updateUser(@RequestBody @Valid UserUpdateDto userUpdateDto) {
-        User user =  userService.update(userUpdateDto);
+        User user =  userService.updateUser(userUpdateDto);
+        return ResponseEntity.ok().body(new UserDetailsDto(user));
+    }
+
+    @PutMapping("/updateAdmin")
+    public ResponseEntity<UserDetailsDto> updateAdmin(@RequestBody @Valid AdminUpdateDto adminUpdateDto) {
+        User user =  userService.updateAdmin(adminUpdateDto);
         return ResponseEntity.ok().body(new UserDetailsDto(user));
     }
 

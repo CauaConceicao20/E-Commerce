@@ -1,6 +1,7 @@
 package com.compass.e_commerce.config.security;
 
 import com.compass.e_commerce.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,13 +27,12 @@ public class SecurityFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var token = recoverToken(request);
         if (token != null) {
             var login = tokenService.getSubject(token);
-            var user = userRepository.findByLogin(login);
+            var user = userRepository.findByLogin(login).orElseThrow(() -> new EntityNotFoundException("User não encontrado login: " + login));
 
             if(user != null) {
                 var userDetails = new UserDetailsImpl(user);
