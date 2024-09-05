@@ -25,6 +25,4 @@ public class StockService {
             stockReposition(existingSaleGame.getGame(), -diferencaQuantidade);
         }
     }
-
-
 }

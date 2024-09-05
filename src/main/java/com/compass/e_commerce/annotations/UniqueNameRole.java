@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = UniqueNameValidator.class)
 public @interface UniqueNameRole {
 
-        String message() default "O nome da Role deve ser único; já existe uma função com este nome";
-        Class<?>[] groups() default {};
-        Class<? extends Payload>[] payload() default {};
+    String message() default "O nome da Role deve ser único; já existe uma função com este nome.";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

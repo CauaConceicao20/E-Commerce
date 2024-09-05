@@ -11,8 +11,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/resetPassword")
 public class PasswordResetController {
 
+    private final PasswordResetService passwordResetService;
+
     @Autowired
-    private PasswordResetService passwordResetService;
+    public PasswordResetController(PasswordResetService passwordResetService) {
+        this.passwordResetService = passwordResetService;
+    }
 
     @PostMapping("/request")
     public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDto resetPasswordDto) {

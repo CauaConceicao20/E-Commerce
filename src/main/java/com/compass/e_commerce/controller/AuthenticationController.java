@@ -6,6 +6,7 @@ import com.compass.e_commerce.dto.user.UserAuthenticationDto;
 import com.compass.e_commerce.dto.user.UserDetailsDto;
 import com.compass.e_commerce.dto.user.UserLoginDetailsDto;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
+import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.service.UserService;
 import jakarta.validation.Valid;
@@ -23,18 +24,23 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/auth")
 public class AuthenticationController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private TokenService tokenService;
-
+    public AuthenticationController(UserService userService, AuthenticationManager authenticationManager, TokenService tokenService) {
+        this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.tokenService = tokenService;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginDetailsDto> login(@RequestBody @Valid UserAuthenticationDto authenticationDto) {
+        var user = userService.findByLogin(authenticationDto.login());
+        if (!user.getActive()) {
+            throw new UserInactiveException("Usuário está inativo");
+        }
         var loginPassword = new UsernamePasswordAuthenticationToken(authenticationDto.login(), authenticationDto.password());
         var auth = this.authenticationManager.authenticate(loginPassword);
 

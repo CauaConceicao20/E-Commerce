@@ -2,6 +2,7 @@ package com.compass.e_commerce.exception;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.compass.e_commerce.exception.personalized.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import java.util.NoSuchElementException;
 public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handler404(EntityNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErroDetails("Elemento Não Encontrado", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErroDetails("Elemento não encontrado", ex.getMessage()));
     }
 
     @ExceptionHandler(NoSuchElementException.class)
@@ -48,6 +49,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GameIsInactiveExcpetion.class)
     public ResponseEntity<?> gameIsInactiveExcpetion(GameIsInactiveExcpetion ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErroDetails("Game inativado", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ExceededStockException.class)
+    public ResponseEntity<?> exceededStockException(ExceededStockException ex) {
+        return ResponseEntity.badRequest().body(new ErroDetails("Estoque excedido", ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserInactiveException.class)
+    public ResponseEntity<?> userInactiveException(UserInactiveException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErroDetails("Usuário não encontrado", ex.getMessage()));
     }
 
     @ExceptionHandler(JWTDecodeException.class)

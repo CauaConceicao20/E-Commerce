@@ -9,11 +9,14 @@ import java.util.Objects;
 @Service
 public class CacheService {
 
-    @Autowired
-    private CacheManager cacheManager;
+    private final CacheManager cacheManager;
+    private final GameService gameService;
 
     @Autowired
-    private GameService GameService;
+    public CacheService(CacheManager cacheManager, GameService gameService) {
+        this.cacheManager = cacheManager;
+        this.gameService = gameService;
+    }
 
     public void evictAllCacheValues(String cacheName) {
         Objects.requireNonNull(cacheManager.getCache(cacheName)).clear();

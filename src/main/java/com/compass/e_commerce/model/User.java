@@ -2,7 +2,6 @@
 package com.compass.e_commerce.model;
 
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
-import com.compass.e_commerce.model.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,10 +36,25 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
+    private boolean active;
+
     public User(UserRegistrationDto userRegistrationDto) {
         this.login = userRegistrationDto.login();
         this.password = userRegistrationDto.password();
         this.email = userRegistrationDto.email();
+        this.active = true;
+    }
+
+    public void isActive() {
+        this.active = true;
+    }
+
+    public void isInactive() {
+        this.active = false;
+    }
+
+    public boolean getActive() {
+        return this.active;
     }
 }
 

@@ -16,18 +16,18 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class PasswordResetService {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private TokenService tokenService;
+    private final TokenService tokenService;
 
     private final PasswordEncoder passwordEncoder;
 
-    public PasswordResetService(PasswordEncoder passwordEncoder) {
+    @Autowired
+    public PasswordResetService(UserService userService, TokenService tokenService, PasswordEncoder passwordEncoder) {
+        this.userService  = userService;
+        this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
     }
-
 
     public String generateTokenReset(String email) {
         User user = userService.findByEmail(email);

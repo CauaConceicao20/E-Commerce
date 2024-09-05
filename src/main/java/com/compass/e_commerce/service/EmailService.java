@@ -4,22 +4,22 @@ import com.compass.e_commerce.dto.user.EmailDto;
 import com.compass.e_commerce.model.User;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-    @Autowired
-    private JavaMailSender mailSender;
-    @Autowired
-    private  UserService usersService;
-    @Autowired
-    private StringRedisTemplate redisTemplate;
-    @Autowired
-    private PasswordResetService passwordResetService;
+    private final JavaMailSender mailSender;
+    private final UserService usersService;
+    private final PasswordResetService passwordResetService;
 
+    @Autowired
+    public EmailService(JavaMailSender mailSender, UserService usersService, PasswordResetService passwordResetService) {
+        this.mailSender = mailSender;
+        this.usersService = usersService;
+        this.passwordResetService = passwordResetService;
+    }
     public void sendPasswordResetEmail(EmailDto email) {
         User user = validateEmail(email.email());
         SimpleMailMessage message = new SimpleMailMessage();

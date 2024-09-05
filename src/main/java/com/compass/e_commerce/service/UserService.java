@@ -4,7 +4,8 @@ import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.dto.user.AdminUpdateDto;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
-import com.compass.e_commerce.model.Game;
+import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
+import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.model.User;
@@ -13,16 +14,14 @@ import com.compass.e_commerce.repository.UserRepository;
 //import com.compass.e_commerce.repository.UserRoleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
@@ -35,6 +34,7 @@ public class UserService {
     String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
+    @Autowired
     public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -58,7 +58,7 @@ public class UserService {
     public User registerUserAdmin(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
-        Set<Role> roles = new HashSet<Role>(roleRepository.findAll());
+        Set<Role> roles = new HashSet<>(roleRepository.findAll());
 
         if(roles.isEmpty()) {
             throw new EntityNotFoundException("Role não encontrada");
@@ -109,6 +109,9 @@ public class UserService {
         User user = userRepository.findByIdUser(userUpdateDto.id(), RoleNameEnum.USER)
                 .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
 
+        if (!user.getActive()) {
+            throw new UserInactiveException("Usuário está inativo");
+        }
         if (userUpdateDto.login() != null) {
             user.setLogin(userUpdateDto.login());
         }
@@ -119,7 +122,6 @@ public class UserService {
             user.setEmail(userUpdateDto.email());
         }
         userRepository.save(user);
-
         return user;
     }
 
@@ -128,6 +130,9 @@ public class UserService {
         User user = userRepository.findByIdAdmin(adminUpdateDto.id(), RoleNameEnum.ADMIN)
                 .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
 
+        if (!user.getActive()) {
+            throw new UserInactiveException("Usuário está inativo");
+        }
         if (adminUpdateDto.login() != null) {
             user.setLogin(adminUpdateDto.login());
         }
@@ -146,12 +151,21 @@ public class UserService {
             }
         }
         userRepository.save(user);
-
         return user;
     }
 
 
     public void delete(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User não encontrado com o id: " + id));
+
+        if(!user.getActive()) {
+            throw new UserInactiveException("Usuário está inativo");
+        }
+
+        if(!user.getSales().isEmpty()) {
+            throw new DeletionNotAllowedException("O Usuario está associado a vendas.");
+        }
         userRepository.deleteById(id);
     }
 }

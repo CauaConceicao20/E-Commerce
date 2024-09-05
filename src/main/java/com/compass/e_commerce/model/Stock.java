@@ -1,7 +1,7 @@
 package com.compass.e_commerce.model;
 
 import com.compass.e_commerce.dto.stock.StockDto;
-import com.compass.e_commerce.model.Game;
+import com.compass.e_commerce.exception.personalized.ExceededStockException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -35,14 +35,14 @@ public class Stock implements Serializable {
 
     public void stockReduction(int quantityReduction) {
         if (this.quantity < quantityReduction || quantityReduction <= 0) {
-            throw new IllegalArgumentException("Quantity reduction must be positive and cannot exceed the available stock.");
+            throw new ExceededStockException("A redução de quantidade deve ser positiva e não pode exceder o estoque disponível.");
         }
         this.quantity -= quantityReduction;
     }
 
     public void stockReplenishment(int quantityReplenishment) {
         if (quantityReplenishment <= 0) {
-            throw new IllegalArgumentException("Quantity replenishment must be positive.");
+            throw new ExceededStockException("O reabastecimento de quantidade deve ser positivo.");
         }
         this.quantity += quantityReplenishment;
     }

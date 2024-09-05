@@ -1,8 +1,8 @@
 package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.sale.*;
-import com.compass.e_commerce.exception.DeletionNotAllowedException;
-import com.compass.e_commerce.exception.SaleAlreadyConfirmedException;
+import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
+import com.compass.e_commerce.exception.personalized.SaleAlreadyConfirmedException;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.model.Sale;
 import com.compass.e_commerce.model.SaleGame;

@@ -21,8 +21,12 @@ import java.util.List;
 @RequestMapping("/game")
 public class GameController {
 
+    private final GameService gameService;
+
     @Autowired
-    private GameService gameService;
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @PostMapping("/create")
     public ResponseEntity<GameDetailsDto> createRequest(@RequestBody @Valid GameRegistrationDto gameDto, UriComponentsBuilder uriBuilder) {

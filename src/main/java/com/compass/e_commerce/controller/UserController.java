@@ -5,12 +5,15 @@ import com.compass.e_commerce.dto.user.AdminUpdateDto;
 import com.compass.e_commerce.dto.user.UserDetailsDto;
 import com.compass.e_commerce.dto.user.UserListDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
+import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.service.UserService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +24,12 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/list")
     public ResponseEntity<List<UserListDto>> listUsers() {
@@ -40,6 +47,24 @@ public class UserController {
     public ResponseEntity<UserDetailsDto> updateAdmin(@RequestBody @Valid AdminUpdateDto adminUpdateDto) {
         User user =  userService.updateAdmin(adminUpdateDto);
         return ResponseEntity.ok().body(new UserDetailsDto(user));
+    }
+
+    @PutMapping("/isActive/{id}")
+    @Transactional
+    //@CacheEvict(value = "games", allEntries = true)
+    public ResponseEntity<Void> activeGame(@PathVariable Long id) {
+        User user = userService.findById(id);
+        user.isActive();
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/isInactive/{id}")
+    @Transactional
+    //@CacheEvict(value = "games", allEntries = true)
+    public ResponseEntity<Void> inactiveGame(@PathVariable Long id) {
+        User user = userService.findById(id);
+        user.isInactive();
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/delete/{id}")

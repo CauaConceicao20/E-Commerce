@@ -18,13 +18,15 @@ import java.io.IOException;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
-    @Autowired
-    private TokenService tokenService;
+
+    private final TokenService tokenService;
 
     private final UserRepository userRepository;
 
-    public SecurityFilter(UserRepository userRepository) {
+    @Autowired
+    public SecurityFilter(UserRepository userRepository, TokenService tokenService) {
         this.userRepository = userRepository;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -32,9 +34,9 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = recoverToken(request);
         if (token != null) {
             var login = tokenService.getSubject(token);
-            var user = userRepository.findByLogin(login).orElseThrow(() -> new EntityNotFoundException("User não encontrado login: " + login));
+            var user = userRepository.findByLogin(login).orElseThrow(() -> new EntityNotFoundException("Usuario invalido ou incorreto"));
 
-            if(user != null) {
+            if(user != null && user.getActive()) {
                 var userDetails = new UserDetailsImpl(user);
 
                 var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

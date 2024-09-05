@@ -4,6 +4,7 @@ import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.repository.RoleRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
 
+    @Autowired
     public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }

@@ -2,11 +2,12 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
-import com.compass.e_commerce.exception.DeletionNotAllowedException;
-import com.compass.e_commerce.exception.GameIsInactiveExcpetion;
+import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
+import com.compass.e_commerce.exception.personalized.GameIsInactiveExcpetion;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class GameService {
 
     private final GameRepository gameRepository;
 
+    @Autowired
     public GameService(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
@@ -41,48 +43,48 @@ public class GameService {
 
     public Game getId(Long id) {
         Game game = gameRepository.findById(id)
-                .orElseThrow(() ->  new EntityNotFoundException("Game não encontrado id: " + id));
-
+                .orElseThrow(() -> new EntityNotFoundException("Game não encontrado id: " + id));
         return game;
     }
 
     public Game update(GameUpdateDto gameUpdateDto) {
         Game game = gameRepository.findById(gameUpdateDto.id())
                 .orElseThrow(() -> new NoSuchElementException("Game não encontrado id: " + gameUpdateDto.id()));
-        if(game.getActive()) {
-            if (gameUpdateDto.name() != null) {
-                game.setName(gameUpdateDto.name());
-            }
-            if (gameUpdateDto.description() != null) {
-                game.setDescription(gameUpdateDto.description());
-            }
-            if (gameUpdateDto.gender() != null) {
-                game.setGender(gameUpdateDto.gender());
-            }
-            if (gameUpdateDto.platform() != null) {
-                game.setPlatform(gameUpdateDto.platform());
-            }
-            if (gameUpdateDto.price() > 0) {
-                game.setPrice(gameUpdateDto.price());
-            }
-            gameRepository.save(game);
-        }else {
+        if (game.getActive()) {
             throw new GameIsInactiveExcpetion("Game está inativado");
+
         }
+        if (gameUpdateDto.name() != null) {
+            game.setName(gameUpdateDto.name());
+        }
+        if (gameUpdateDto.description() != null) {
+            game.setDescription(gameUpdateDto.description());
+        }
+        if (gameUpdateDto.gender() != null) {
+            game.setGender(gameUpdateDto.gender());
+        }
+        if (gameUpdateDto.platform() != null) {
+            game.setPlatform(gameUpdateDto.platform());
+        }
+        if (gameUpdateDto.price() > 0) {
+            game.setPrice(gameUpdateDto.price());
+        }
+        gameRepository.save(game);
+
         return game;
-    }
+}
 
     @CacheEvict(value = "games", allEntries = true)
     public void delete(Long id) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Game não encontrado com o id: " + id));
 
-        if(!game.getActive()) {
-            throw new DeletionNotAllowedException("O Game está inativado");
+        if (!game.getActive()) {
+            throw new GameIsInactiveExcpetion("O Game está inativado");
         }
 
-        if(!game.getSaleGame().isEmpty()) {
-          throw new DeletionNotAllowedException("O Game está associado a uma Sale.");
+        if (!game.getSaleGame().isEmpty()) {
+            throw new DeletionNotAllowedException("O Game está associado a uma Sale.");
         }
         gameRepository.deleteById(id);
     }

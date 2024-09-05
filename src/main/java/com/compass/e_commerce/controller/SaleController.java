@@ -17,8 +17,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/sale")
 public class SaleController {
+
+    private final SaleService saleService;
+
     @Autowired
-    private SaleService saleService;
+    public SaleController(SaleService saleService) {
+        this.saleService = saleService;
+    }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('USER')")
