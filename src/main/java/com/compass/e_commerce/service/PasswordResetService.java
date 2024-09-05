@@ -4,6 +4,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.compass.e_commerce.config.security.TokenService;
 import com.compass.e_commerce.model.User;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -14,20 +15,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@RequiredArgsConstructor
 public class PasswordResetService {
 
     private final UserService userService;
-
     private final TokenService tokenService;
-
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public PasswordResetService(UserService userService, TokenService tokenService, PasswordEncoder passwordEncoder) {
-        this.userService  = userService;
-        this.tokenService = tokenService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public String generateTokenReset(String email) {
         User user = userService.findByEmail(email);

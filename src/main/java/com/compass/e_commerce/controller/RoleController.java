@@ -5,6 +5,7 @@ import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.service.RoleService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/role")
+@RequiredArgsConstructor
 public class RoleController {
 
     private final RoleService roleService;
-
-    @Autowired
-    public RoleController(RoleService roleService){
-        this.roleService = roleService;
-    }
 
     @PostMapping("/create")
     public ResponseEntity<Role> create(@RequestBody @Valid RoleRegistrationDto roleRegistrationDto) {

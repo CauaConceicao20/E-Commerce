@@ -8,6 +8,7 @@ import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.service.GameService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +20,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/game")
+@RequiredArgsConstructor
 public class GameController {
 
     private final GameService gameService;
 
-    @Autowired
-    public GameController(GameService gameService) {
-        this.gameService = gameService;
-    }
 
     @PostMapping("/create")
     public ResponseEntity<GameDetailsDto> createRequest(@RequestBody @Valid GameRegistrationDto gameDto, UriComponentsBuilder uriBuilder) {

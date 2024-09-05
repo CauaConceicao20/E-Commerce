@@ -14,6 +14,7 @@ import com.compass.e_commerce.repository.UserRepository;
 //import com.compass.e_commerce.repository.UserRoleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -33,13 +35,6 @@ public class UserService {
 
     String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
-
-    @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public User convertDtoToEntity(UserRegistrationDto userRegistrationDto) {
         return new User(userRegistrationDto);
@@ -153,7 +148,6 @@ public class UserService {
         userRepository.save(user);
         return user;
     }
-
 
     public void delete(Long id) {
         User user = userRepository.findById(id)

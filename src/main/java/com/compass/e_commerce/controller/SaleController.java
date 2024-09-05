@@ -4,6 +4,7 @@ import com.compass.e_commerce.dto.sale.*;
 import com.compass.e_commerce.model.Sale;
 import com.compass.e_commerce.service.SaleService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -16,14 +17,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/sale")
+@RequiredArgsConstructor
 public class SaleController {
 
     private final SaleService saleService;
-
-    @Autowired
-    public SaleController(SaleService saleService) {
-        this.saleService = saleService;
-    }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('USER')")

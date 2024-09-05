@@ -13,6 +13,7 @@ import com.compass.e_commerce.repository.SaleGameRepository;
 import com.compass.e_commerce.repository.SaleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,23 +28,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SaleService {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private GameService gameService;
-    @Autowired
-    private StockService stockService;
-
+    private final UserService userService;
+    private final GameService gameService;
+    private final StockService stockService;
     private final SaleRepository saleRepository;
-
     private final SaleGameRepository saleGameRepository;
-
-    public SaleService(SaleRepository saleRepository, SaleGameRepository saleGameRepository) {
-        this.saleRepository = saleRepository;
-        this.saleGameRepository = saleGameRepository;
-    }
 
     public Sale convertDtoToEntity(SaleRegistrationDto dataDto) {
         Sale sale = new Sale();
@@ -82,8 +74,8 @@ public class SaleService {
     }
 
     public List<Sale> saleReportsDay(LocalDate date) {
-        List<Sale> list =  saleRepository.findByConfirmationDateAndStage(date);
-        if(list.isEmpty()) {
+        List<Sale> list = saleRepository.findByConfirmationDateAndStage(date);
+        if (list.isEmpty()) {
             throw new EntityNotFoundException("Nenhuma Sale Encontrada");
         }
         return list;
@@ -94,7 +86,7 @@ public class SaleService {
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
 
         List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfWeek, lastDayOfWeek);
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             throw new EntityNotFoundException("Nenhuma Sale Encontrada");
         }
         return list;
@@ -105,7 +97,7 @@ public class SaleService {
         LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
 
         List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfMonth, lastDayOfMonth);
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             throw new EntityNotFoundException("Nenhuma Sale Encontrada");
         }
         return list;
@@ -215,7 +207,7 @@ public class SaleService {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Não existe Sale com esse id"));
 
-        if(sale.getStageSale() == StageSale.CONFIRMED) {
+        if (sale.getStageSale() == StageSale.CONFIRMED) {
             throw new DeletionNotAllowedException("A Venda já foi confirmada");
         }
         saleRepository.deleteById(id);

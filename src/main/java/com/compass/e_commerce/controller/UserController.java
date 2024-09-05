@@ -12,6 +12,7 @@ import com.compass.e_commerce.service.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
@@ -22,14 +23,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/list")
     public ResponseEntity<List<UserListDto>> listUsers() {

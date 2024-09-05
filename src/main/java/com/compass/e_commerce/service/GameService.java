@@ -7,6 +7,7 @@ import com.compass.e_commerce.exception.personalized.GameIsInactiveExcpetion;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,14 +18,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@RequiredArgsConstructor
 public class GameService {
 
     private final GameRepository gameRepository;
-
-    @Autowired
-    public GameService(GameRepository gameRepository) {
-        this.gameRepository = gameRepository;
-    }
 
     @Transactional
     @CacheEvict(value = "games", allEntries = true)

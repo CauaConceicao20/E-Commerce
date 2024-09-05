@@ -10,6 +10,7 @@ import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,18 +23,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthenticationController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-
-    @Autowired
-    public AuthenticationController(UserService userService, AuthenticationManager authenticationManager, TokenService tokenService) {
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginDetailsDto> login(@RequestBody @Valid UserAuthenticationDto authenticationDto) {
