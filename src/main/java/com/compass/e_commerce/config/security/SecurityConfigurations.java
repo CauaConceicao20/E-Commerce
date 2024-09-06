@@ -1,6 +1,10 @@
 package com.compass.e_commerce.config.security;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +23,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@SecurityScheme(name = SecurityConfigurations.SECURITY, type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
 public class SecurityConfigurations {
 
+    public static final String SECURITY = "bearerAuth";
     private final SecurityFilter securityFilter;
 
     @Bean
@@ -33,12 +39,17 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/registerUser").permitAll()
                         .requestMatchers(HttpMethod.POST, "/email/sendEmailForgotPassword").permitAll()
                         .requestMatchers(HttpMethod.POST, "resetPassword/request").permitAll()
+                        .requestMatchers("v3/api-docs/**", "swagger-ui/**", "swagger/ui.html").permitAll()
                         .requestMatchers(HttpMethod.POST, "auth/registerAdmin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "user/updateAdmin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "game/create").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "game/update").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                         .anyRequest().hasRole("USER")
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Autenticação falhou: credenciais inválidas"))
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -14,7 +14,6 @@ import com.compass.e_commerce.repository.SaleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -75,9 +74,6 @@ public class SaleService {
 
     public List<Sale> saleReportsDay(LocalDate date) {
         List<Sale> list = saleRepository.findByConfirmationDateAndStage(date);
-        if (list.isEmpty()) {
-            throw new EntityNotFoundException("Nenhuma Sale Encontrada");
-        }
         return list;
     }
 
@@ -86,9 +82,6 @@ public class SaleService {
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
 
         List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfWeek, lastDayOfWeek);
-        if (list.isEmpty()) {
-            throw new EntityNotFoundException("Nenhuma Sale Encontrada");
-        }
         return list;
     }
 
@@ -97,9 +90,6 @@ public class SaleService {
         LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
 
         List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfMonth, lastDayOfMonth);
-        if (list.isEmpty()) {
-            throw new EntityNotFoundException("Nenhuma Sale Encontrada");
-        }
         return list;
     }
 

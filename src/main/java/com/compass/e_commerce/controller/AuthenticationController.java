@@ -1,5 +1,6 @@
 package com.compass.e_commerce.controller;
 
+import com.compass.e_commerce.config.security.SecurityConfigurations;
 import com.compass.e_commerce.config.security.TokenService;
 import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.dto.user.UserAuthenticationDto;
@@ -9,9 +10,12 @@ import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +28,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication")
+@SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class AuthenticationController {
 
     private final UserService userService;
@@ -31,8 +37,14 @@ public class AuthenticationController {
     private final TokenService tokenService;
 
     @PostMapping("/login")
+    @Operation(summary = "Login")
+    @ApiResponse(responseCode = "200", description = "Login bem sucedido")
+    @ApiResponse(responseCode = "401", description = "Credencias incorretas")
+    @ApiResponse(responseCode = "403", description = "Usuario está inativo")
+    @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<UserLoginDetailsDto> login(@RequestBody @Valid UserAuthenticationDto authenticationDto) {
         var user = userService.findByLogin(authenticationDto.login());
+
         if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
         }
@@ -45,6 +57,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/registerUser")
+    @ApiResponse(responseCode = "201", description = "Registro bem sucedido")
+    @ApiResponse(responseCode = "400", description = "Dados invalidos")
+    @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<UserDetailsDto> create(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userService.convertDtoToEntity(userRegistrationDto);
         userService.registerUser(user);
@@ -55,6 +70,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/registerAdmin")
+    @ApiResponse(responseCode = "201", description = "Registro bem sucedido")
+    @ApiResponse(responseCode = "400", description = "Dados invalidos")
+    @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<UserDetailsDto> createAdmin(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userService.convertDtoToEntity(userRegistrationDto);
         userService.registerUserAdmin(user);

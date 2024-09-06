@@ -11,7 +11,8 @@ import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.repository.RoleRepository;
 import com.compass.e_commerce.repository.UserRepository;
-//import com.compass.e_commerce.repository.UserRoleRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class UserService {
         return new User(userRegistrationDto);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public User registerUser(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -50,6 +52,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public User registerUserAdmin(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -79,8 +82,9 @@ public class UserService {
         throw new UsernameNotFoundException("User não encontrado");
     }
 
+    @Cacheable("users")
     public List<User> findAll() {
-        return userRepository.findAll();
+        return userRepository.findByActiveTrue();
     }
 
     public User findByEmail(String email) {
@@ -89,8 +93,8 @@ public class UserService {
     }
 
     public User findByLogin(String login) {
-       return userRepository.findByLogin(login)
-               .orElseThrow(() -> new EntityNotFoundException("User não encontrado login: " + login));
+      return userRepository.findByLogin(login)
+               .orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
     }
 
     @Transactional
@@ -149,6 +153,7 @@ public class UserService {
         return user;
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public void delete(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User não encontrado com o id: " + id));

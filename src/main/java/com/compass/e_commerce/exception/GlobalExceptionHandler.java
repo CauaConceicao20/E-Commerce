@@ -4,70 +4,153 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.compass.e_commerce.exception.personalized.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<?> handler404(EntityNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErroDetails("Elemento não encontrado", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.NOT_FOUND.value(),
+                "Não Encontrado",
+                "Elemento não encontrado",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErroDetails("Elemento não encontrado id incorreto", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleNoSuchElementException(NoSuchElementException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.NOT_FOUND.value(),
+                "Não Encontrado",
+                "Elemento não encontrado - ID incorreto",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handler400(MethodArgumentNotValidException ex) {
-        var erro = ex.getFieldErrors();
-        return ResponseEntity.badRequest().body(erro.stream().map(ErroDetails::new).toList());
+    public ResponseEntity<ErrorDetails> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+        StringBuilder message = new StringBuilder();
+        ex.getFieldErrors().forEach(error -> message.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; "));
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                "Requisição Inválida",
+                message.toString(),
+                request.getDescription(false)
+        );
+        return ResponseEntity.badRequest().body(errorDetails);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handlerInvalidEnum(HttpMessageNotReadableException ex) {
-        return ResponseEntity.badRequest().body(new ErroDetails("Valor inválido fornecido para o campo enum.", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                "Requisição Inválida",
+                "Valor inválido fornecido para o campo enum.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.badRequest().body(errorDetails);
     }
 
-    @ExceptionHandler( DeletionNotAllowedException.class)
-    public ResponseEntity<?> gameAssociationConflictException( DeletionNotAllowedException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErroDetails("Não foi possivel excluir",ex.getMessage()));
+    @ExceptionHandler(DeletionNotAllowedException.class)
+    public ResponseEntity<ErrorDetails> handleDeletionNotAllowedException(DeletionNotAllowedException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.CONFLICT.value(),
+                "Conflito",
+                "Não foi possível excluir o recurso.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
     }
 
     @ExceptionHandler(SaleAlreadyConfirmedException.class)
-    public ResponseEntity<?> saleAlreadyConfirmedException(SaleAlreadyConfirmedException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErroDetails("Não foi possivel concluir a ação", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleSaleAlreadyConfirmedException(SaleAlreadyConfirmedException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.CONFLICT.value(),
+                "Conflito",
+                "Venda já confirmada.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
     }
 
-    @ExceptionHandler(GameIsInactiveExcpetion.class)
-    public ResponseEntity<?> gameIsInactiveExcpetion(GameIsInactiveExcpetion ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErroDetails("Game inativado", ex.getMessage()));
+    @ExceptionHandler(GameIsInactiveException.class)
+    public ResponseEntity<ErrorDetails> handleGameIsInactiveException(GameIsInactiveException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.CONFLICT.value(),
+                "Conflito",
+                "Jogo está inativo.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
     }
 
     @ExceptionHandler(ExceededStockException.class)
-    public ResponseEntity<?> exceededStockException(ExceededStockException ex) {
-        return ResponseEntity.badRequest().body(new ErroDetails("Estoque excedido", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleExceededStockException(ExceededStockException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                "Requisição Inválida",
+                "Estoque excedido.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.badRequest().body(errorDetails);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Não Autorizado",
+                "Credenciais inválidas.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
     }
 
     @ExceptionHandler(UserInactiveException.class)
-    public ResponseEntity<?> userInactiveException(UserInactiveException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErroDetails("Usuário não encontrado", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleUserInactiveException(UserInactiveException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.FORBIDDEN.value(),
+                "Proibido",
+                "Usuário inativo.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetails);
     }
 
     @ExceptionHandler(JWTDecodeException.class)
-    public ResponseEntity<?> handleJWTDecodeException(JWTDecodeException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErroDetails("Token invalido", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleJWTDecodeException(JWTDecodeException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Não Autorizado",
+                "Token inválido.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
     }
 
     @ExceptionHandler(JWTVerificationException.class)
-    public ResponseEntity<?> handleJWTVerificationException(JWTVerificationException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErroDetails("Token inválido ou expirado", ex.getMessage()));
+    public ResponseEntity<ErrorDetails> handleJWTVerificationException(JWTVerificationException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Não Autorizado",
+                "Token inválido ou expirado.",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
     }
 }
+

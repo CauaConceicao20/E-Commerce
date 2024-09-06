@@ -4,6 +4,7 @@ package com.compass.e_commerce.model;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.*;
 
@@ -44,11 +45,11 @@ public class User {
         this.email = userRegistrationDto.email();
         this.active = true;
     }
-
+    @CacheEvict(value = "users", allEntries = true)
     public void isActive() {
         this.active = true;
     }
-
+    @CacheEvict(value = "users", allEntries = true)
     public void isInactive() {
         this.active = false;
     }

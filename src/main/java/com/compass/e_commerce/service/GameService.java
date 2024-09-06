@@ -3,12 +3,11 @@ package com.compass.e_commerce.service;
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
-import com.compass.e_commerce.exception.personalized.GameIsInactiveExcpetion;
+import com.compass.e_commerce.exception.personalized.GameIsInactiveException;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.repository.GameRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -48,7 +47,7 @@ public class GameService {
         Game game = gameRepository.findById(gameUpdateDto.id())
                 .orElseThrow(() -> new NoSuchElementException("Game não encontrado id: " + gameUpdateDto.id()));
         if (game.getActive()) {
-            throw new GameIsInactiveExcpetion("Game está inativado");
+            throw new GameIsInactiveException("Game está inativado");
 
         }
         if (gameUpdateDto.name() != null) {
@@ -77,7 +76,7 @@ public class GameService {
                 .orElseThrow(() -> new NoSuchElementException("Game não encontrado com o id: " + id));
 
         if (!game.getActive()) {
-            throw new GameIsInactiveExcpetion("O Game está inativado");
+            throw new GameIsInactiveException("O Game está inativado");
         }
 
         if (!game.getSaleGame().isEmpty()) {
