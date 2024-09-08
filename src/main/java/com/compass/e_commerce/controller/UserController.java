@@ -36,9 +36,10 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/list")
+    @GetMapping("/listAll")
     @Operation(summary = "List Users")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<UserListDto>> listUsers() {
         var userList = userService.findAll().stream().map(UserListDto::new).toList();
@@ -50,6 +51,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "409", description = "usuario está inativado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<UserDetailsDto> updateUser(@RequestBody @Valid UserUpdateDto userUpdateDto) {
         User user =  userService.updateUser(userUpdateDto);
@@ -61,6 +63,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "409", description = "usuario está inativado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<UserDetailsDto> updateAdmin(@RequestBody @Valid AdminUpdateDto adminUpdateDto) {
         User user =  userService.updateAdmin(adminUpdateDto);
@@ -73,6 +76,7 @@ public class UserController {
     @Operation(summary = "Active User")
     @ApiResponse(responseCode = "204", description = "Ativação bem sucedida")
     @ApiResponse(responseCode = "404", description = "User não encontrado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> activeUser(@PathVariable Long id) {
         User user = userService.findById(id);
@@ -86,6 +90,7 @@ public class UserController {
     @Operation(summary = "Inactive User")
     @ApiResponse(responseCode = "204", description = "Inativação bem sucedida")
     @ApiResponse(responseCode = "404", description = "User não encontrado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> inactiveUser(@PathVariable Long id) {
         User user = userService.findById(id);
@@ -99,6 +104,7 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User não encontrado")
     @ApiResponse(responseCode = "409", description = "User está inativado")
     @ApiResponse(responseCode = "409", description = "User está associado a vendas")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.delete(id);

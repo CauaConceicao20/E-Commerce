@@ -94,6 +94,7 @@ public class SaleService {
     }
 
     @Transactional
+    @CacheEvict(value = "sales", allEntries = true)
     public Sale update(SaleUpdateDto saleUpdateDto) {
         Sale sale = saleRepository.findById(saleUpdateDto.saleId())
                 .orElseThrow(() -> new EntityNotFoundException("Id da Sale não existe"));
@@ -142,6 +143,7 @@ public class SaleService {
     }
 
     @Transactional
+    @CacheEvict(value = "sales", allEntries = true)
     public Sale swapGame(SwapGameDto swapGameDto) {
         Sale sale = saleRepository.findById(swapGameDto.id())
                 .orElseThrow(() -> new EntityNotFoundException("Não existe Sale com esse id"));

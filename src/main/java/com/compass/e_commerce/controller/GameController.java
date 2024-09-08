@@ -14,10 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -36,6 +34,7 @@ public class GameController {
     @Operation(summary = "Create Game")
     @ApiResponse(responseCode = "201", description = "Criação de Game bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<GameDetailsDto> createRequest(@RequestBody @Valid GameRegistrationDto gameDto, UriComponentsBuilder uriBuilder) {
         Game game = gameService.convertDtoToEntity(gameDto);
@@ -45,12 +44,13 @@ public class GameController {
         return ResponseEntity.created(uri).body(new GameDetailsDto(game));
     }
 
-    @GetMapping("/list")
+    @GetMapping("/listAll")
     @Operation(summary = "List Games")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<GameListDto>> list() {
-        var listGame = gameService.list().stream().map(GameListDto::new).toList();
+        var listGame = gameService.listAll().stream().map(GameListDto::new).toList();
         return ResponseEntity.ok().body(listGame);
     }
 
@@ -61,6 +61,7 @@ public class GameController {
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "404", description = "Game não encontrado")
     @ApiResponse(responseCode = "409", description = "O Game está inativado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<GameDetailsDto> update(@RequestBody @Valid GameUpdateDto gameUpdateDto) {
         Game game = gameService.update(gameUpdateDto);
@@ -74,6 +75,7 @@ public class GameController {
     @Operation(summary = "Active Game")
     @ApiResponse(responseCode = "204", description = "Ativação bem sucedida")
     @ApiResponse(responseCode = "404", description = "User não encontrado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> activeGame(@PathVariable Long id) {
         Game game = gameService.getId(id);
@@ -87,6 +89,7 @@ public class GameController {
     @Operation(summary = "Inactive Game")
     @ApiResponse(responseCode = "204", description = "Inativação bem sucedida")
     @ApiResponse(responseCode = "404", description = "User não encontrado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> inactiveGame(@PathVariable Long id) {
         Game game = gameService.getId(id);
@@ -100,6 +103,7 @@ public class GameController {
     @ApiResponse(responseCode = "404", description = "Game não encontrado")
     @ApiResponse(responseCode = "409", description = "Game está inativado")
     @ApiResponse(responseCode = "409", description = "Game está associado a vendas")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         gameService.delete(id);

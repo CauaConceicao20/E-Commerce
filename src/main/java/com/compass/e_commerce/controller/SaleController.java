@@ -31,6 +31,7 @@ public class SaleController {
     @Operation(summary = "Create User")
     @ApiResponse(responseCode = "201", description = "Criação de sale bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> create(@RequestBody @Valid SaleRegistrationDto saleRegistrationDto) {
         Sale sale = saleService.convertDtoToEntity(saleRegistrationDto);
@@ -39,9 +40,10 @@ public class SaleController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/list")
+    @GetMapping("/listAll")
     @Operation(summary = "List Sales")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<SaleListDto>> list() {
         var saleList = saleService.list();
@@ -104,6 +106,7 @@ public class SaleController {
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "404", description = "Venda não encontrada")
     @ApiResponse(responseCode = "409", description = "A venda ja foi confirmada")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<SaleDetailsDto> updateSale(@RequestBody @Valid SaleUpdateDto saleUpdateDto) {
         var sale = saleService.update(saleUpdateDto);
@@ -116,6 +119,7 @@ public class SaleController {
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "404", description = "Venda não encontrada")
     @ApiResponse(responseCode = "409", description = "A venda ja foi confirmada")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<SaleDetailsDto> swapGame(@RequestBody @Valid SwapGameDto swapGameDto) {
         Sale sale = saleService.swapGame(swapGameDto);
@@ -127,6 +131,7 @@ public class SaleController {
     @ApiResponse(responseCode = "204", description = "Deleção bem sucedida")
     @ApiResponse(responseCode = "404", description = "Sale não encontrado")
     @ApiResponse(responseCode = "409", description = "Sale já foi confirmada")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         saleService.delete(id);

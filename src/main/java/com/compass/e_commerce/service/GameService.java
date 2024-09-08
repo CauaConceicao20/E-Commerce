@@ -33,7 +33,7 @@ public class GameService {
     }
 
     @Cacheable("games")
-    public List<Game> list() {
+    public List<Game> listAll() {
         return gameRepository.findByActiveTrue();
     }
 

@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.compass.e_commerce.exception.personalized.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,6 +19,18 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public ResponseEntity<ErrorDetails> handleRedisConnectionFailure(RedisConnectionFailureException ex, WebRequest request)  {
+        System.out.println("Erro ao conectar com Redis: " + ex.getMessage());
+        ErrorDetails errorDetails = new ErrorDetails(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Serviço indisponivel temporariamente",
+                "Não foi possivel conectar ao redis",
+                request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorDetails);
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {

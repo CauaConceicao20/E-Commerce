@@ -38,7 +38,7 @@ public class RoleController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(role);
     }
-    @GetMapping("/list")
+    @GetMapping("/listAll")
     @Operation(summary = "List Roles")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")

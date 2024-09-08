@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,7 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "401", description = "Credencias incorretas")
     @ApiResponse(responseCode = "403", description = "Usuario está inativo")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
+    @Transactional
     public ResponseEntity<UserLoginDetailsDto> login(@RequestBody @Valid UserAuthenticationDto authenticationDto) {
         var user = userService.findByLogin(authenticationDto.login());
 
@@ -60,7 +62,8 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "201", description = "Registro bem sucedido")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
-    public ResponseEntity<UserDetailsDto> create(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
+    @Transactional
+    public ResponseEntity<UserDetailsDto> register(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userService.convertDtoToEntity(userRegistrationDto);
         userService.registerUser(user);
 
@@ -73,7 +76,8 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "201", description = "Registro bem sucedido")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
-    public ResponseEntity<UserDetailsDto> createAdmin(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
+    @Transactional
+    public ResponseEntity<UserDetailsDto> registerAdmin(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userService.convertDtoToEntity(userRegistrationDto);
         userService.registerUserAdmin(user);
 
