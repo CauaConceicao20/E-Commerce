@@ -35,7 +35,7 @@ public class Stock implements Serializable {
 
     public void stockReduction(int quantityReduction) {
         if (this.quantity < quantityReduction || quantityReduction <= 0) {
-            throw new ExceededStockException("A redução de quantidade deve ser positiva e não pode exceder o estoque disponível.");
+            throw new ExceededStockException("O estoque não pode ficar negativo");
         }
         this.quantity -= quantityReduction;
     }

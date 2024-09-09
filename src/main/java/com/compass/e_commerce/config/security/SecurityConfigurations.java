@@ -48,7 +48,6 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.PUT, "stock/replenishment/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "cache/clear/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "auth/registerAdmin").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "user/updateAdmin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "game/create").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "game/update").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")

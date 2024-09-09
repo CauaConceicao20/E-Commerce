@@ -1,7 +1,6 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.config.security.SecurityConfigurations;
-import com.compass.e_commerce.dto.user.AdminUpdateDto;
 import com.compass.e_commerce.dto.user.UserDetailsDto;
 import com.compass.e_commerce.dto.user.UserListDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
@@ -39,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok().body(userList);
     }
 
-    @PutMapping("/updateUser")
+    @PutMapping("/update")
     @Operation(summary = "Update User")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
@@ -47,19 +46,7 @@ public class UserController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<UserDetailsDto> updateUser(@RequestBody @Valid UserUpdateDto userUpdateDto) {
-        User user =  userService.updateUser(userUpdateDto);
-        return ResponseEntity.ok().body(new UserDetailsDto(user));
-    }
-
-    @PutMapping("/updateAdmin")
-    @Operation(summary = "Update Admin")
-    @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
-    @ApiResponse(responseCode = "400", description = "Dado incorretos")
-    @ApiResponse(responseCode = "409", description = "usuario está inativado")
-    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
-    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<UserDetailsDto> updateAdmin(@RequestBody @Valid AdminUpdateDto adminUpdateDto) {
-        User user =  userService.updateAdmin(adminUpdateDto);
+        User user =  userService.update(userUpdateDto);
         return ResponseEntity.ok().body(new UserDetailsDto(user));
     }
 

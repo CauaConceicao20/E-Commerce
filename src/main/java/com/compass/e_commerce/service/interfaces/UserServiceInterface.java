@@ -1,7 +1,5 @@
 package com.compass.e_commerce.service.interfaces;
 
-import com.compass.e_commerce.dto.sale.SaleListDto;
-import com.compass.e_commerce.dto.user.AdminUpdateDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.model.User;
 
@@ -12,7 +10,6 @@ public interface UserServiceInterface {
     User registerUserAdmin(User user);
     List<User> getAll();
     User getById(Long id);
-    User updateUser(UserUpdateDto userUpdateDto);
-    User updateAdmin(AdminUpdateDto adminUpdateDto);
+    User update(UserUpdateDto userUpdateDto);
     void delete(Long id);
 }

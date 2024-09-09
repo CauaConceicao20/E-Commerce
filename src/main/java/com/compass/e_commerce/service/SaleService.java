@@ -124,6 +124,7 @@ public class SaleService implements SaleServiceInterface {
     }
 
     @Transactional
+    @CacheEvict(value = "sales", allEntries = true)
     public Sale confirmedSale(Long id) {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Não existe Sale com esse id"));
@@ -174,6 +175,7 @@ public class SaleService implements SaleServiceInterface {
 
             sale.getSaleGame().remove(existingSaleGame);
             saleGameRepository.delete(existingSaleGame);
+            saleRepository.flush();
 
             Game newGame = gameService.getById(swapGame.newGameId());
 

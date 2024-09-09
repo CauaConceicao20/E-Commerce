@@ -1,7 +1,6 @@
 package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.config.security.UserDetailsImpl;
-import com.compass.e_commerce.dto.user.AdminUpdateDto;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
@@ -29,7 +28,6 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserServiceInterface {
-
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -88,7 +86,7 @@ public class UserService implements UserServiceInterface {
     }
 
     public User findByEmail(String email) {
-        return userRepository.findByLogin(email)
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User não encontrado login: " + email));
     }
 
@@ -104,53 +102,49 @@ public class UserService implements UserServiceInterface {
     }
 
     @Transactional
-    public User updateUser(UserUpdateDto userUpdateDto) {
-        User user = userRepository.findByIdUser(userUpdateDto.id(), RoleNameEnum.USER)
-                .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
+    @CacheEvict(value = "users", allEntries = true)
+    public User update(UserUpdateDto userUpdateDto) {
+        User user = getById(getAuthenticatedUserId());
 
-        if (!user.getActive()) {
+        User foundUser = findUserByRole(userUpdateDto.id(), user);
+
+        if (!foundUser.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
         }
         if (userUpdateDto.login() != null) {
-            user.setLogin(userUpdateDto.login());
+            foundUser.setLogin(userUpdateDto.login());
         }
         if (userUpdateDto.email() != null) {
             if (!EMAIL_PATTERN.matcher(userUpdateDto.email()).matches()) {
                 throw new IllegalArgumentException("O e-mail fornecido é inválido.");
             }
-            user.setEmail(userUpdateDto.email());
+            foundUser.setEmail(userUpdateDto.email());
         }
-        userRepository.save(user);
-        return user;
-    }
-
-    @Transactional
-    public User updateAdmin(AdminUpdateDto adminUpdateDto) {
-        User user = userRepository.findByIdAdmin(adminUpdateDto.id(), RoleNameEnum.ADMIN)
-                .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
-
-        if (!user.getActive()) {
-            throw new UserInactiveException("Usuário está inativo");
-        }
-        if (adminUpdateDto.login() != null) {
-            user.setLogin(adminUpdateDto.login());
-        }
-        if (adminUpdateDto.email() != null) {
-            if (!EMAIL_PATTERN.matcher(adminUpdateDto.email()).matches()) {
-                throw new IllegalArgumentException("O e-mail fornecido é inválido.");
-            }
-            user.setEmail(adminUpdateDto.email());
-        }
-        if(adminUpdateDto.password() != null) {
-            if (adminUpdateDto.password().length() < 8 || adminUpdateDto.password().length() > 14) {
+        if(userUpdateDto.password() != null) {
+            if (userUpdateDto.password().length() < 8 || userUpdateDto.password().length() > 14) {
                 throw new IllegalArgumentException("A senha deve ter entre 8 e 14 caracteres.");
             } else {
-                String encryptedPassword = passwordEncoder.encode(adminUpdateDto.password());
+                String encryptedPassword = passwordEncoder.encode(userUpdateDto.password());
                 user.setPassword(encryptedPassword);
             }
         }
-        userRepository.save(user);
-        return user;
+        userRepository.save(foundUser);
+        return foundUser;
+    }
+
+    public User findUserByRole(Long id, User user) {
+        User foundUser = null;
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getName() == RoleNameEnum.ADMIN);
+
+        if(isAdmin) {
+            foundUser = userRepository.findByIdAdmin(id, RoleNameEnum.ADMIN)
+                    .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
+        }else {
+            foundUser = userRepository.findByIdUser(id, RoleNameEnum.USER)
+                    .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
+        }
+        return foundUser;
     }
 
     @CacheEvict(value = "users", allEntries = true)

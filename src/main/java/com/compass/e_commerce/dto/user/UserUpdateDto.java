@@ -8,9 +8,11 @@ public record UserUpdateDto(
 
         @NotNull
         Long id,
-        @NotBlank
+
         String login,
-        @Email
-        @NotBlank
-        String email) {
+
+        String email,
+
+        String password
+) {
 }

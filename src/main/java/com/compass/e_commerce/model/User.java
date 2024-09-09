@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.cache.annotation.CacheEvict;
 
+import java.io.Serializable;
 import java.util.*;
 
 @Getter
@@ -15,7 +16,10 @@ import java.util.*;
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name="tb_users")
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

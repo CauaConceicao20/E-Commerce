@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.NOT_FOUND.value(),
                 "Não Encontrado",
-                "Elemento não encontrado",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.NOT_FOUND.value(),
                 "Não Encontrado",
-                "Elemento não encontrado - ID incorreto",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.BAD_REQUEST.value(),
                 "Requisição Inválida",
-                "Valor inválido fornecido para o campo enum.",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.badRequest().body(errorDetails);
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.CONFLICT.value(),
                 "Conflito",
-                "Não foi possível excluir o recurso.",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.CONFLICT.value(),
                 "Conflito",
-                "Venda já confirmada.",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
@@ -105,7 +105,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.CONFLICT.value(),
                 "Conflito",
-                "Jogo está inativo.",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorDetails);
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.BAD_REQUEST.value(),
                 "Requisição Inválida",
-                "Estoque excedido.",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.badRequest().body(errorDetails);
@@ -127,7 +127,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.UNAUTHORIZED.value(),
                 "Não Autorizado",
-                "Credenciais inválidas.",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
@@ -138,7 +138,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 HttpStatus.FORBIDDEN.value(),
                 "Proibido",
-                "Usuário inativo.",
+                ex.getMessage(),
                 request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetails);
