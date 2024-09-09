@@ -44,13 +44,13 @@ public class GameController {
         return ResponseEntity.created(uri).body(new GameDetailsDto(game));
     }
 
-    @GetMapping("/listAll")
+    @GetMapping("/getAll")
     @Operation(summary = "List Games")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<GameListDto>> list() {
-        var listGame = gameService.listAll().stream().map(GameListDto::new).toList();
+        var listGame = gameService.getAll().stream().map(GameListDto::new).toList();
         return ResponseEntity.ok().body(listGame);
     }
 
@@ -78,7 +78,7 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> activeGame(@PathVariable Long id) {
-        Game game = gameService.getId(id);
+        Game game = gameService.getById(id);
         game.isActive();
         return ResponseEntity.noContent().build();
     }
@@ -92,7 +92,7 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> inactiveGame(@PathVariable Long id) {
-        Game game = gameService.getId(id);
+        Game game = gameService.getById(id);
         game.isInactive();
         return ResponseEntity.noContent().build();
     }

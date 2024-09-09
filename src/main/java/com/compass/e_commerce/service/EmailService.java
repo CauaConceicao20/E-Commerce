@@ -2,6 +2,7 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.user.EmailDto;
 import com.compass.e_commerce.model.User;
+import com.compass.e_commerce.service.interfaces.EmailServiceInterface;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class EmailService implements EmailServiceInterface {
 
     private final JavaMailSender mailSender;
     private final UserService usersService;

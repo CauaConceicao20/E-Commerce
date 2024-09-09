@@ -33,7 +33,7 @@ public class StockController {
     @ApiResponse(responseCode = "404", description = "Game não existe")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<Void> reductionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
-       Game game =  gameService.getId(id);
+       Game game =  gameService.getById(id);
        stockService.stockReduction(game, stockDto.quantity());
 
        return ResponseEntity.noContent().build();
@@ -47,7 +47,7 @@ public class StockController {
     @ApiResponse(responseCode = "404", description = "Game não existe")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<Void> repositionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
-        Game game =  gameService.getId(id);
+        Game game =  gameService.getById(id);
         stockService.stockReplenishment(game, stockDto.quantity());
 
         return ResponseEntity.noContent().build();

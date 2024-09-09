@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,12 +37,12 @@ public class RoleController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(role);
     }
-    @GetMapping("/listAll")
+    @GetMapping("/getAll")
     @Operation(summary = "List Roles")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<List<RoleListDto>> listRole() {
-        var roles = roleService.list().stream().map(RoleListDto::new).toList();
+    public ResponseEntity<List<RoleListDto>> list() {
+        var roles = roleService.getAll().stream().map(RoleListDto::new).toList();
         return ResponseEntity.ok().body(roles);
     }
 }

@@ -11,6 +11,7 @@ import com.compass.e_commerce.model.enums.StageSale;
 import com.compass.e_commerce.model.pk.SaleGamePK;
 import com.compass.e_commerce.repository.SaleGameRepository;
 import com.compass.e_commerce.repository.SaleRepository;
+import com.compass.e_commerce.service.interfaces.SaleServiceInterface;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SaleService {
+public class SaleService implements SaleServiceInterface {
 
     private final UserService userService;
     private final GameService gameService;
@@ -39,12 +40,12 @@ public class SaleService {
     public Sale convertDtoToEntity(SaleRegistrationDto dataDto) {
         Sale sale = new Sale();
         double totalPrice = 0.0;
-        User user = userService.findById(userService.getAuthenticatedUserId());
+        User user = userService.getById(userService.getAuthenticatedUserId());
         sale.setUser(user);
         sale.setCreationTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         for (SaleRegistrationDto.SaleGameRegistrationDto saleGameDto : dataDto.games()) {
-            Game game = gameService.getId(saleGameDto.gameId());
+            Game game = gameService.getById(saleGameDto.gameId());
 
             SaleGame saleGame = new SaleGame();
             saleGame.setId(new SaleGamePK(sale, game));
@@ -66,7 +67,7 @@ public class SaleService {
     }
 
     @Cacheable("sales")
-    public List<SaleListDto> list() {
+    public List<SaleListDto> getAll() {
         return saleRepository.findAll().stream()
                 .map(SaleListDto::new)
                 .collect(Collectors.toList());
@@ -174,7 +175,7 @@ public class SaleService {
             sale.getSaleGame().remove(existingSaleGame);
             saleGameRepository.delete(existingSaleGame);
 
-            Game newGame = gameService.getId(swapGame.newGameId());
+            Game newGame = gameService.getById(swapGame.newGameId());
 
             if (swapGame.quantity() > newGame.getStock().getQuantity()) {
                 throw new IllegalArgumentException("Quantidade do novo jogo excede o estoque disponível.");

@@ -2,11 +2,12 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.model.SaleGame;
+import com.compass.e_commerce.service.interfaces.StockServiceInterface;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class StockService {
+public class StockService implements StockServiceInterface {
 
     @Transactional
     public void stockReduction(Game game, int quantity) {
@@ -14,7 +15,7 @@ public class StockService {
     }
 
     @Transactional
-    public void stockReplenishment(Game game, Integer quantity) {
+    public void stockReplenishment(Game game, int quantity) {
         game.getStock().stockReplenishment(quantity);
     }
 

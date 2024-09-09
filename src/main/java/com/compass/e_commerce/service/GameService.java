@@ -6,6 +6,7 @@ import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException
 import com.compass.e_commerce.exception.personalized.GameIsInactiveException;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.repository.GameRepository;
+import com.compass.e_commerce.service.interfaces.GameServiceInterface;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -18,7 +19,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-public class GameService {
+public class GameService implements GameServiceInterface {
 
     private final GameRepository gameRepository;
 
@@ -33,11 +34,11 @@ public class GameService {
     }
 
     @Cacheable("games")
-    public List<Game> listAll() {
+    public List<Game> getAll() {
         return gameRepository.findByActiveTrue();
     }
 
-    public Game getId(Long id) {
+    public Game getById(Long id) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Game não encontrado id: " + id));
         return game;

@@ -1,5 +1,6 @@
 package com.compass.e_commerce.service;
 
+import com.compass.e_commerce.service.interfaces.CacheServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -9,7 +10,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class CacheService {
+public class CacheService implements CacheServiceInterface {
 
     private final CacheManager cacheManager;
 

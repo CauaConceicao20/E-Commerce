@@ -40,13 +40,13 @@ public class SaleController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/listAll")
+    @GetMapping("/getAll")
     @Operation(summary = "List Sales")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<SaleListDto>> list() {
-        var saleList = saleService.list();
+        var saleList = saleService.getAll();
         return ResponseEntity.ok().body(saleList);
     }
 
