@@ -3,6 +3,7 @@ package com.compass.e_commerce.service;
 import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
+import com.compass.e_commerce.exception.personalized.AccessRestrictException;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
 import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.Role;
@@ -22,6 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -103,22 +105,33 @@ public class UserService implements UserServiceInterface {
 
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
-    public User update(UserUpdateDto userUpdateDto) {
+    public User updateByAdmin(Long id, UserUpdateDto userUpdateDto) {
+        User foundUser = getById(id);
+        logicUpdate(foundUser, userUpdateDto);
+        userRepository.save(foundUser);
+
+        return foundUser;
+    }
+
+    public User updateMyProfile(UserUpdateDto userUpdateDto) {
         User user = getById(getAuthenticatedUserId());
+        logicUpdate(user, userUpdateDto);
+        userRepository.save(user);
+        return user;
+    }
 
-        User foundUser = findUserByRole(userUpdateDto.id(), user);
-
-        if (!foundUser.getActive()) {
+    public void logicUpdate(User user, UserUpdateDto userUpdateDto) {
+        if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
         }
         if (userUpdateDto.login() != null) {
-            foundUser.setLogin(userUpdateDto.login());
+            user.setLogin(userUpdateDto.login());
         }
         if (userUpdateDto.email() != null) {
             if (!EMAIL_PATTERN.matcher(userUpdateDto.email()).matches()) {
                 throw new IllegalArgumentException("O e-mail fornecido é inválido.");
             }
-            foundUser.setEmail(userUpdateDto.email());
+            user.setEmail(userUpdateDto.email());
         }
         if(userUpdateDto.password() != null) {
             if (userUpdateDto.password().length() < 8 || userUpdateDto.password().length() > 14) {
@@ -128,23 +141,6 @@ public class UserService implements UserServiceInterface {
                 user.setPassword(encryptedPassword);
             }
         }
-        userRepository.save(foundUser);
-        return foundUser;
-    }
-
-    public User findUserByRole(Long id, User user) {
-        User foundUser = null;
-        boolean isAdmin = user.getRoles().stream()
-                .anyMatch(role -> role.getName() == RoleNameEnum.ADMIN);
-
-        if(isAdmin) {
-            foundUser = userRepository.findByIdAdmin(id, RoleNameEnum.ADMIN)
-                    .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
-        }else {
-            foundUser = userRepository.findByIdUser(id, RoleNameEnum.USER)
-                    .orElseThrow(() -> new EntityNotFoundException("User não encontrado"));
-        }
-        return foundUser;
     }
 
     @CacheEvict(value = "users", allEntries = true)

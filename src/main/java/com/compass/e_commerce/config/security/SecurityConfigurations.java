@@ -40,6 +40,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/email/sendEmailForgotPassword").permitAll()
                         .requestMatchers(HttpMethod.POST, "resetPassword/request").permitAll()
                         .requestMatchers("v3/api-docs/**", "swagger-ui/**", "swagger/ui.html").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "user/updateAdmin/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "user/isActive/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "game/isActive/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,"user/isInactive/*").hasRole("ADMIN")

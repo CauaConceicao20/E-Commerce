@@ -6,9 +6,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record UserUpdateDto(
 
-        @NotNull
-        Long id,
-
         String login,
 
         String email,

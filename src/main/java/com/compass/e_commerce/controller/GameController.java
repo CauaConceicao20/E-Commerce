@@ -54,7 +54,6 @@ public class GameController {
         return ResponseEntity.ok().body(listGame);
     }
 
-
     @PutMapping("/update")
     @Operation(summary = "Update Game")
     @ApiResponse(responseCode = "200", description = "Atualização bem sucedida")

@@ -38,15 +38,27 @@ public class UserController {
         return ResponseEntity.ok().body(userList);
     }
 
-    @PutMapping("/update")
-    @Operation(summary = "Update User")
+    @PutMapping("/updateAdmin/{id}")
+    @Operation(summary = "Update Admin")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "409", description = "usuario está inativado")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<UserDetailsDto> updateUser(@RequestBody @Valid UserUpdateDto userUpdateDto) {
-        User user =  userService.update(userUpdateDto);
+    public ResponseEntity<UserDetailsDto> updateByAdmin(@PathVariable long id , @RequestBody @Valid UserUpdateDto userUpdateDto) {
+        User user =  userService.updateByAdmin(id,userUpdateDto);
+        return ResponseEntity.ok().body(new UserDetailsDto(user));
+    }
+
+    @PutMapping("/updateProfile")
+    @Operation(summary = "Update my profile")
+    @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
+    @ApiResponse(responseCode = "400", description = "Dado incorretos")
+    @ApiResponse(responseCode = "409", description = "usuario está inativado")
+    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
+    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
+    public ResponseEntity<UserDetailsDto> updateMyProfile(@RequestBody @Valid UserUpdateDto userUpdateDto) {
+        User user =  userService.updateMyProfile(userUpdateDto);
         return ResponseEntity.ok().body(new UserDetailsDto(user));
     }
 
