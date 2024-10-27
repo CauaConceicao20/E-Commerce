@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/email")
+@RequestMapping("/api/email")
 @RequiredArgsConstructor
 @Tag(name = "Email")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -25,7 +25,7 @@ public class EmailController {
 
     private final EmailService emailService;
 
-    @PostMapping("/sendEmailForgotPassword")
+    @PostMapping("/v1/sendEmailForgotPassword")
     @Operation(summary = "Send Password Reset Email")
     @ApiResponse(responseCode = "204", description = "Email enviado com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados Invalidos")

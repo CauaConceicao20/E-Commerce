@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/stock")
+@RequestMapping("/api/stock")
 @RequiredArgsConstructor
 @Tag(name = "Stock")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -25,7 +25,7 @@ public class StockController {
     private final StockService stockService;
     private final GameService gameService;
 
-    @PutMapping("/reduction/{id}")
+    @PutMapping("/v1/reduction/{id}")
     @CacheEvict(value = "games", allEntries = true)
     @Operation(summary = "Reduction of Stock")
     @ApiResponse(responseCode = "204", description = "Estoque reduzido com sucesso")
@@ -39,7 +39,7 @@ public class StockController {
        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/replenishment/{id}")
+    @PutMapping("/v1/replenishment/{id}")
     @CacheEvict(value = "games", allEntries = true)
     @Operation(summary = "Replenishment of Stock")
     @ApiResponse(responseCode = "204", description = "Reposição de estoque bem sucedida")

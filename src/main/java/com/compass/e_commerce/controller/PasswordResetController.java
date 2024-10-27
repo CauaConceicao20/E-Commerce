@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/resetPassword")
+@RequestMapping("/api/resetPassword")
 @RequiredArgsConstructor
 @Tag(name = "Reset Password")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -22,7 +22,7 @@ public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
 
-    @PostMapping("/request")
+    @PostMapping("/v1/request")
     @Operation(summary = "Reset Password")
     @ApiResponse(responseCode = "204", description = "Senha redefinida com sucesso")
     @ApiResponse(responseCode = "404", description = "Dado invalido")

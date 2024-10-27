@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sale")
+@RequestMapping("/api/sale")
 @RequiredArgsConstructor
 @Tag(name = "Sale")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -27,7 +27,7 @@ public class SaleController {
 
     private final SaleService saleService;
 
-    @PostMapping("/create")
+    @PostMapping("/v1/create")
     @Operation(summary = "Create User")
     @ApiResponse(responseCode = "201", description = "Criação de sale bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
@@ -40,7 +40,7 @@ public class SaleController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/v1/getAll")
     @Operation(summary = "List Sales")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
@@ -50,7 +50,7 @@ public class SaleController {
         return ResponseEntity.ok().body(saleList);
     }
 
-    @PutMapping("/confirm/{id}")
+    @PutMapping("/v1/confirm/{id}")
     @Operation(summary = "Confirm Sale")
     @ApiResponse(responseCode = "200", description = "Confirmação de venda bem sucedida")
     @ApiResponse(responseCode = "404", description = "Sale não encontrada")
@@ -60,7 +60,7 @@ public class SaleController {
         return ResponseEntity.ok().body(new SaleDetailsDto(sale));
     }
 
-    @GetMapping("/reportDay")
+    @GetMapping("/v1/reportDay")
     @Operation(summary = "Report Sales Day")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada neste dia")
@@ -74,7 +74,7 @@ public class SaleController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/reportWeek")
+    @GetMapping("/v1/reportWeek")
     @Operation(summary = "Report Sales Week")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada nesta Semana")
@@ -87,7 +87,7 @@ public class SaleController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/reportMonth")
+    @GetMapping("/v1/reportMonth")
     @Operation(summary = "Report Sales Month")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada neste mês")
@@ -100,7 +100,7 @@ public class SaleController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/update")
+    @PutMapping("/v1/update")
     @Operation(summary = "Update Sale")
     @ApiResponse(responseCode = "200", description = "Atualização bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
@@ -113,7 +113,7 @@ public class SaleController {
         return ResponseEntity.ok().body(new SaleDetailsDto(sale));
     }
 
-    @PutMapping("/swap")
+    @PutMapping("/v1/swap")
     @Operation(summary = "Exchange Games in Sale")
     @ApiResponse(responseCode = "200", description = "Troca bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
@@ -126,7 +126,7 @@ public class SaleController {
         return ResponseEntity.ok().body(new SaleDetailsDto(sale));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/v1/delete/{id}")
     @Operation(summary = "Delete Sale")
     @ApiResponse(responseCode = "204", description = "Deleção bem sucedida")
     @ApiResponse(responseCode = "404", description = "Sale não encontrado")

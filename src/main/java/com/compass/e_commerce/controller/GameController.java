@@ -22,7 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @RestController
-@RequestMapping("/game")
+@RequestMapping("api/game")
 @RequiredArgsConstructor
 @Tag(name = "Game")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -30,7 +30,7 @@ public class GameController {
 
     private final GameService gameService;
 
-    @PostMapping("/create")
+    @PostMapping("/v1/create")
     @Operation(summary = "Create Game")
     @ApiResponse(responseCode = "201", description = "Criação de Game bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
@@ -44,7 +44,7 @@ public class GameController {
         return ResponseEntity.created(uri).body(new GameDetailsDto(game));
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/v1/getAll")
     @Operation(summary = "List Games")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
@@ -54,7 +54,7 @@ public class GameController {
         return ResponseEntity.ok().body(listGame);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/v1/update")
     @Operation(summary = "Update Game")
     @ApiResponse(responseCode = "200", description = "Atualização bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
@@ -68,7 +68,7 @@ public class GameController {
         return ResponseEntity.ok().body(new GameDetailsDto(game));
     }
 
-    @PutMapping("/isActive/{id}")
+    @PutMapping("/v1/isActive/{id}")
     @Transactional
     @CacheEvict(value = "games", allEntries = true)
     @Operation(summary = "Active Game")
@@ -82,7 +82,7 @@ public class GameController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/isInactive/{id}")
+    @PutMapping("/v1/isInactive/{id}")
     @Transactional
     @CacheEvict(value = "games", allEntries = true)
     @Operation(summary = "Inactive Game")
@@ -96,7 +96,7 @@ public class GameController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/v1/delete/{id}")
     @Operation(summary = "Delete Game")
     @ApiResponse(responseCode = "204", description = "Deleção bem sucedida")
     @ApiResponse(responseCode = "404", description = "Game não encontrado")

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/cache")
+@RequestMapping("/api/cache")
 @RequiredArgsConstructor
 @Tag(name = "Cache")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -23,7 +23,7 @@ public class CacheController {
 
     private final CacheService cacheService;
 
-    @PostMapping("/clear")
+    @PostMapping("/v1/clear")
     @Operation(summary = "Clear Cache")
     @ApiResponse(responseCode = "204", description = "Cache excluido com sucesso")
     public ResponseEntity<Void> clear(@RequestParam("cacheName") String cacheName) {

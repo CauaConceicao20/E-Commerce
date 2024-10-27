@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 @Tag(name = "User")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -28,7 +28,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/getAll")
+    @GetMapping("/v1/getAll")
     @Operation(summary = "List Users")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok().body(userList);
     }
 
-    @PutMapping("/updateAdmin/{id}")
+    @PutMapping("/v1/updateAdmin/{id}")
     @Operation(summary = "Update Admin")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.ok().body(new UserDetailsDto(user));
     }
 
-    @PutMapping("/updateProfile")
+    @PutMapping("/v1/updateProfile")
     @Operation(summary = "Update my profile")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
@@ -62,7 +62,7 @@ public class UserController {
         return ResponseEntity.ok().body(new UserDetailsDto(user));
     }
 
-    @PutMapping("/isActive/{id}")
+    @PutMapping("/v1/isActive/{id}")
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
     @Operation(summary = "Active User")
@@ -76,7 +76,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/isInactive/{id}")
+    @PutMapping("/v1/isInactive/{id}")
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
     @Operation(summary = "Inactive User")
@@ -90,7 +90,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/v1/delete/{id}")
     @Operation(summary = "Delete User")
     @ApiResponse(responseCode = "204", description = "Deleção bem sucedida")
     @ApiResponse(responseCode = "404", description = "User não encontrado")

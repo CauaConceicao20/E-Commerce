@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/role")
+@RequestMapping("/api/role")
 @RequiredArgsConstructor
 @Tag(name = "Role")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -26,7 +26,7 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    @PostMapping("/create")
+    @PostMapping("/v1/create")
     @Operation(summary = "Create Role")
     @ApiResponse(responseCode = "201", description = "Criação de Role bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
@@ -37,7 +37,7 @@ public class RoleController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(role);
     }
-    @GetMapping("/getAll")
+    @GetMapping("/v1/getAll")
     @Operation(summary = "List Roles")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")

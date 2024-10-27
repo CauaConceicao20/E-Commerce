@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("api/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
@@ -37,7 +37,7 @@ public class AuthenticationController {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    @PostMapping("/login")
+    @PostMapping("/v1/login")
     @Operation(summary = "Login")
     @ApiResponse(responseCode = "200", description = "Login bem sucedido")
     @ApiResponse(responseCode = "401", description = "Credencias incorretas")
@@ -58,7 +58,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(new UserLoginDetailsDto(token));
     }
 
-    @PostMapping("/registerUser")
+    @PostMapping("/v1/registerUser")
     @ApiResponse(responseCode = "201", description = "Registro bem sucedido")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
@@ -72,7 +72,7 @@ public class AuthenticationController {
         return ResponseEntity.created(uri).body(new UserDetailsDto((user)));
     }
 
-    @PostMapping("/registerAdmin")
+    @PostMapping("/v1/registerAdmin")
     @ApiResponse(responseCode = "201", description = "Registro bem sucedido")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
