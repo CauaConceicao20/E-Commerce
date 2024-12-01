@@ -14,10 +14,15 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/user")
@@ -35,6 +40,13 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<UserListDto>> listUsers() {
         var userList = userService.getAll().stream().map(UserListDto::new).toList();
+        for(UserListDto users : userList) {
+            users.add(linkTo(methodOn(UserController.class).updateMyProfile(null)).withRel("update my profile"));
+            users.add(linkTo(methodOn(UserController.class).updateByAdmin(users.getId(), null)).withRel("update admin"));
+            users.add(linkTo(methodOn(UserController.class).activeUser(users.getId())).withRel("active user"));
+            users.add(linkTo(methodOn(UserController.class).inactiveUser(users.getId())).withRel("inactive user"));
+            users.add(linkTo(methodOn(UserController.class).deleteUser(users.getId())).withRel("delete"));
+        }
         return ResponseEntity.ok().body(userList);
     }
 
@@ -47,7 +59,12 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<UserDetailsDto> updateByAdmin(@PathVariable long id , @RequestBody @Valid UserUpdateDto userUpdateDto) {
         User user =  userService.updateByAdmin(id,userUpdateDto);
-        return ResponseEntity.ok().body(new UserDetailsDto(user));
+        UserDetailsDto userDetailsDto = new UserDetailsDto(user);
+        userDetailsDto.add(linkTo(methodOn(UserController.class).updateMyProfile(null)).withRel("update my profile"));
+        userDetailsDto.add(linkTo(methodOn(UserController.class).activeUser(user.getId())).withRel("active user"));
+        userDetailsDto.add(linkTo(methodOn(UserController.class).inactiveUser(user.getId())).withRel("inactive user"));
+        userDetailsDto.add(linkTo(methodOn(UserController.class).deleteUser(user.getId())).withRel("delete"));
+        return ResponseEntity.ok().body(userDetailsDto);
     }
 
     @PutMapping("/v1/updateProfile")
@@ -59,7 +76,12 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<UserDetailsDto> updateMyProfile(@RequestBody @Valid UserUpdateDto userUpdateDto) {
         User user =  userService.updateMyProfile(userUpdateDto);
-        return ResponseEntity.ok().body(new UserDetailsDto(user));
+        UserDetailsDto userDetailsDto = new UserDetailsDto(user);
+        userDetailsDto.add(linkTo(methodOn(UserController.class).updateByAdmin(user.getId(), null)).withRel("update admin"));
+        userDetailsDto.add(linkTo(methodOn(UserController.class).activeUser(user.getId())).withRel("active user"));
+        userDetailsDto.add(linkTo(methodOn(UserController.class).inactiveUser(user.getId())).withRel("inactive user"));
+        userDetailsDto.add(linkTo(methodOn(UserController.class).deleteUser(user.getId())).withRel("delete"));
+        return ResponseEntity.ok().body(userDetailsDto);
     }
 
     @PutMapping("/v1/isActive/{id}")
@@ -70,9 +92,13 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User não encontrado")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<Void> activeUser(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<Void>> activeUser(@PathVariable Long id) {
         User user = userService.getById(id);
         user.isActive();
+
+        EntityModel response = EntityModel.of(null);
+        response.add(linkTo(methodOn(UserController.class).inactiveUser(id)).withRel("inactive user"));
+
         return ResponseEntity.noContent().build();
     }
 
@@ -84,9 +110,13 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User não encontrado")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<Void> inactiveUser(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<Void>> inactiveUser(@PathVariable Long id) {
         User user = userService.getById(id);
         user.isInactive();
+
+        EntityModel response = EntityModel.of(null);
+        response.add(linkTo(methodOn(UserController.class).activeUser(id)).withRel("active user"));
+
         return ResponseEntity.noContent().build();
     }
 
@@ -100,6 +130,10 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.delete(id);
+
+        EntityModel response = EntityModel.of(null);
+        response.add(linkTo(methodOn(UserController.class).listUsers()).withRel("allUsers"));
+
         return ResponseEntity.noContent().build();
     }
 }

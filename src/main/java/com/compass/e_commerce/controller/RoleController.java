@@ -1,6 +1,7 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.config.security.SecurityConfigurations;
+import com.compass.e_commerce.dto.role.RoleDetailsDto;
 import com.compass.e_commerce.dto.role.RoleListDto;
 import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.model.Role;
@@ -17,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/api/role")
 @RequiredArgsConstructor
@@ -31,11 +35,14 @@ public class RoleController {
     @ApiResponse(responseCode = "201", description = "Criação de Role bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<Role> create(@RequestBody @Valid RoleRegistrationDto roleRegistrationDto) {
+    public ResponseEntity<RoleDetailsDto> create(@RequestBody @Valid RoleRegistrationDto roleRegistrationDto) {
         Role role = roleService.convertDtoToEntity(roleRegistrationDto);
         roleService.create(role);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(role);
+        RoleDetailsDto roleDetailsDto = new RoleDetailsDto(role);
+        roleDetailsDto.add(linkTo(methodOn(RoleController.class)).withRel("all roles"));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(roleDetailsDto);
     }
     @GetMapping("/v1/getAll")
     @Operation(summary = "List Roles")
@@ -43,6 +50,9 @@ public class RoleController {
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<RoleListDto>> list() {
         var roles = roleService.getAll().stream().map(RoleListDto::new).toList();
+        for(RoleListDto role : roles) {
+            role.add(linkTo(methodOn(RoleController.class).create(null)).withRel("create"));
+        }
         return ResponseEntity.ok().body(roles);
     }
 }

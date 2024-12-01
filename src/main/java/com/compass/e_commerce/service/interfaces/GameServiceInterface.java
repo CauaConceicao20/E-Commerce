@@ -9,6 +9,6 @@ public interface GameServiceInterface {
     Game create(Game game);
     List<Game> getAll();
     Game getById(Long id);
-    Game update(GameUpdateDto gameUpdateDto);
+    Game update(Long id, GameUpdateDto gameUpdateDto);
     void delete(Long id);
 }

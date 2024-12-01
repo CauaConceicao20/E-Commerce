@@ -113,6 +113,8 @@ public class UserService implements UserServiceInterface {
         return foundUser;
     }
 
+    @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public User updateMyProfile(UserUpdateDto userUpdateDto) {
         User user = getById(getAuthenticatedUserId());
         logicUpdate(user, userUpdateDto);

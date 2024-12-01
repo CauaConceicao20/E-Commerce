@@ -1,22 +1,30 @@
 package com.compass.e_commerce.dto.sale;
 
 import com.compass.e_commerce.model.Sale;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public record SaleReportListDto(
-        Long saleId,
-        LocalDateTime getCreationTimestamp,
-        LocalDateTime confirmationTimestamp,
-        String userName,
-        String userEmail,
-        Set<SaleGameListDto> games
-
-) implements Serializable {
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class SaleReportListDto extends RepresentationModel<SaleReportListDto> implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    private Long saleId;
+    private LocalDateTime creationTimestamp;
+    private LocalDateTime confirmationTimestamp;
+    private String userName;
+    private String userEmail;
+    private Set<SaleGameListDto> games;
 
     public SaleReportListDto(Sale sale) {
         this(sale.getId(),
@@ -26,8 +34,6 @@ public record SaleReportListDto(
                 sale.getUser().getEmail(),
                 sale.getSaleGame().stream()
                         .map(SaleGameListDto::new)
-                        .collect(Collectors.toSet()
-                        ));
+                        .collect(Collectors.toSet()));
     }
 }
-

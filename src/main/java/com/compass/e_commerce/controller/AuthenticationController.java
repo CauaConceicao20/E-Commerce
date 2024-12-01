@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
@@ -54,8 +57,11 @@ public class AuthenticationController {
         var auth = this.authenticationManager.authenticate(loginPassword);
 
         var token = tokenService.generateToken((UserDetailsImpl) auth.getPrincipal());
-
-        return ResponseEntity.ok(new UserLoginDetailsDto(token));
+        UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
+        UserLoginDetailsDto userLoginDetailsDto = new UserLoginDetailsDto(token);
+        userLoginDetailsDto.add(linkTo(methodOn(AuthenticationController.class).register(null, dummyUriBuilder)).withRel("register"));
+        userLoginDetailsDto.add(linkTo(methodOn(AuthenticationController.class).registerAdmin(null, dummyUriBuilder)).withRel("register admin"));
+        return ResponseEntity.ok(userLoginDetailsDto);
     }
 
     @PostMapping("/v1/registerUser")
@@ -68,8 +74,11 @@ public class AuthenticationController {
         userService.registerUser(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(new UserDetailsDto((user)));
+        UserDetailsDto userDetailsDto = new UserDetailsDto(user);
+        UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).registerAdmin(null, dummyUriBuilder)).withRel("register admin"));
+        return ResponseEntity.created(uri).body(userDetailsDto);
     }
 
     @PostMapping("/v1/registerAdmin")
@@ -82,7 +91,10 @@ public class AuthenticationController {
         userService.registerUserAdmin(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(new UserDetailsDto((user)));
+        UserDetailsDto userDetailsDto = new UserDetailsDto(user);
+        UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).register(null, dummyUriBuilder)).withRel("register"));
+        return ResponseEntity.created(uri).body(userDetailsDto);
     }
 }

@@ -9,6 +9,6 @@ import java.util.List;
 public interface SaleServiceInterface {
     Sale create(Sale sale);
     List<SaleListDto> getAll();
-    Sale update(SaleUpdateDto saleUpdateDto);
+    Sale update(Long id, SaleUpdateDto saleUpdateDto);
     void delete(Long id);
 }

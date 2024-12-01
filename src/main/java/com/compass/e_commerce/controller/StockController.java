@@ -12,8 +12,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/stock")
@@ -32,11 +37,14 @@ public class StockController {
     @ApiResponse(responseCode = "400", description = "Dados Invalidos")
     @ApiResponse(responseCode = "404", description = "Game não existe")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
-    public ResponseEntity<Void> reductionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
+    public ResponseEntity<EntityModel<Void>> reductionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
        Game game =  gameService.getById(id);
        stockService.stockReduction(game, stockDto.quantity());
 
-       return ResponseEntity.noContent().build();
+       EntityModel<Void> response = EntityModel.of(null);
+       response.add(linkTo(methodOn(StockController.class).repositionStock(null, null)).withRel("reposition stock"));
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
     @PutMapping("/v1/replenishment/{id}")
@@ -46,10 +54,12 @@ public class StockController {
     @ApiResponse(responseCode = "400", description = "Dados Invalidos")
     @ApiResponse(responseCode = "404", description = "Game não existe")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
-    public ResponseEntity<Void> repositionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
+    public ResponseEntity<EntityModel<Void>> repositionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
         Game game =  gameService.getById(id);
         stockService.stockReplenishment(game, stockDto.quantity());
 
-        return ResponseEntity.noContent().build();
+        EntityModel<Void> response = EntityModel.of(null);
+        response.add(linkTo(methodOn(StockController.class).reductionStock(null, null)).withRel("reduction stock"));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }

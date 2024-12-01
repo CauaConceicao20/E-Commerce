@@ -8,8 +8,6 @@ import jakarta.validation.constraints.Positive;
 import java.util.List;
 
 public record SaleUpdateDto(
-        @NotNull
-        Long saleId,
         @NotEmpty
         @Valid
         List<SaleGameUpdateDto> games

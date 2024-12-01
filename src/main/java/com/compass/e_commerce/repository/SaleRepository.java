@@ -17,5 +17,4 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     @Query("SELECT s FROM Sale s WHERE FUNCTION('DATE', s.confirmationTimestamp) BETWEEN :startDate AND :endDate AND s.stageSale = 'CONFIRMED'")
     List<Sale> findByConfirmationDateBetweenAndStage(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-
 }

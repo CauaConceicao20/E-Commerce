@@ -2,11 +2,11 @@ package com.compass.e_commerce.dto.role;
 
 import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.model.enums.RoleNameEnum;
+import org.springframework.hateoas.RepresentationModel;
 
-public record RoleListDto(
-        RoleNameEnum role
-) {
+public class RoleListDto extends RepresentationModel<RoleListDto> {
+    private RoleNameEnum role;
     public RoleListDto(Role role) {
-        this(role.getName());
+        this.role = role.getName();
     }
 }

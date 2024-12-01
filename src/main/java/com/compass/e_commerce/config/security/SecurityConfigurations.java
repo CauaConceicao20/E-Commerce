@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -43,8 +45,8 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.PUT, "api/user/v1/updateAdmin/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/user/v1/isActive/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/game/v1/isActive/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"api/user/v1/isInactive/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"api/game/v1/isInactive/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "api/user/v1/isInactive/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "api/game/v1/isInactive/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/stock/v1/reduction/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/stock/v1/replenishment/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/cache/v1/clear/*").hasRole("ADMIN")
@@ -52,8 +54,14 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "api/game/v1/create").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/game/v1/update").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
-                        .anyRequest().hasRole("USER")
+                        .anyRequest().permitAll()
                 )
+                .formLogin(form -> {
+                    form.loginPage("/login").defaultSuccessUrl("/");
+                })
+                .logout(logout -> {
+                    logout.logoutUrl("/logout");
+                })
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) ->
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Autenticação falhou: credenciais inválidas"))

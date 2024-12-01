@@ -45,9 +45,9 @@ public class GameService implements GameServiceInterface {
     }
 
     @CacheEvict(value = "games", allEntries = true)
-    public Game update(GameUpdateDto gameUpdateDto) {
-        Game game = gameRepository.findById(gameUpdateDto.id())
-                .orElseThrow(() -> new NoSuchElementException("Game não encontrado id: " + gameUpdateDto.id()));
+    public Game update(Long id, GameUpdateDto gameUpdateDto) {
+        Game game = gameRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Game não encontrado id: " + id));
         if (!game.getActive()) {
             throw new GameIsInactiveException("Game está inativado");
 

@@ -73,6 +73,12 @@ public class SaleService implements SaleServiceInterface {
                 .collect(Collectors.toList());
     }
 
+    public Sale getId(Long id) {
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Sale não encontrada id :" + id));
+        return sale;
+    }
+
     public List<Sale> saleReportsDay(LocalDate date) {
         List<Sale> list = saleRepository.findByConfirmationDateAndStage(date);
         return list;
@@ -96,8 +102,8 @@ public class SaleService implements SaleServiceInterface {
 
     @Transactional
     @CacheEvict(value = "sales", allEntries = true)
-    public Sale update(SaleUpdateDto saleUpdateDto) {
-        Sale sale = saleRepository.findById(saleUpdateDto.saleId())
+    public Sale update(Long id, SaleUpdateDto saleUpdateDto) {
+        Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Id da Sale não existe"));
 
         if (sale.getStageSale() == StageSale.UNCONFIRMED) {

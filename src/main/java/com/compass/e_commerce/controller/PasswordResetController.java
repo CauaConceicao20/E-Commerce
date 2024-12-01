@@ -10,8 +10,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/resetPassword")
@@ -28,9 +34,14 @@ public class PasswordResetController {
     @ApiResponse(responseCode = "404", description = "Dado invalido")
     @ApiResponse(responseCode = "401", description = "token invalido")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
-    public ResponseEntity<Void> resetPassword(@RequestParam("token") String token, @RequestBody @Valid ResetPasswordDto resetPasswordDto) {
+    public ResponseEntity<EntityModel<Void>> resetPassword(@RequestParam("token") String token, @RequestBody @Valid ResetPasswordDto resetPasswordDto) {
         passwordResetService.changePassword(resetPasswordDto.newPassword(), token);
-        return ResponseEntity.noContent().build();
+
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
+
+        EntityModel<Void> response = EntityModel.of(null);
+        response.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
 
