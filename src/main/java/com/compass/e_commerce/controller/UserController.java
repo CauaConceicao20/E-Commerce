@@ -92,12 +92,9 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User não encontrado")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<EntityModel<Void>> activeUser(@PathVariable Long id) {
+    public ResponseEntity<Void> activeUser(@PathVariable Long id) {
         User user = userService.getById(id);
         user.isActive();
-
-        EntityModel response = EntityModel.of(null);
-        response.add(linkTo(methodOn(UserController.class).inactiveUser(id)).withRel("inactive user"));
 
         return ResponseEntity.noContent().build();
     }
@@ -110,12 +107,9 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User não encontrado")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<EntityModel<Void>> inactiveUser(@PathVariable Long id) {
+    public ResponseEntity<Void> inactiveUser(@PathVariable Long id) {
         User user = userService.getById(id);
         user.isInactive();
-
-        EntityModel response = EntityModel.of(null);
-        response.add(linkTo(methodOn(UserController.class).activeUser(id)).withRel("active user"));
 
         return ResponseEntity.noContent().build();
     }
@@ -130,9 +124,6 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.delete(id);
-
-        EntityModel response = EntityModel.of(null);
-        response.add(linkTo(methodOn(UserController.class).listUsers()).withRel("allUsers"));
 
         return ResponseEntity.noContent().build();
     }

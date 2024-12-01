@@ -35,11 +35,9 @@ public class EmailController {
     @ApiResponse(responseCode = "204", description = "Email enviado com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados Invalidos")
     @ApiResponse(responseCode = "404", description = "Email não existe")
-    public ResponseEntity<EntityModel<Void>> sendEmailResetPassword(@RequestBody @Valid EmailDto emailDto) {
+    public ResponseEntity<Void> sendEmailResetPassword(@RequestBody @Valid EmailDto emailDto) {
         emailService.sendPasswordResetEmail(emailDto);
-        EntityModel<Void> response = EntityModel.of(null);
 
-        response.add(linkTo(methodOn(PasswordResetController.class).resetPassword(null, null)).withRel("reset password"));
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.noContent().build();
     }
 }

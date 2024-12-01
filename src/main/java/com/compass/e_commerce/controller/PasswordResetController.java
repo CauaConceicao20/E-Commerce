@@ -34,14 +34,12 @@ public class PasswordResetController {
     @ApiResponse(responseCode = "404", description = "Dado invalido")
     @ApiResponse(responseCode = "401", description = "token invalido")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
-    public ResponseEntity<EntityModel<Void>> resetPassword(@RequestParam("token") String token, @RequestBody @Valid ResetPasswordDto resetPasswordDto) {
+    public ResponseEntity<Void> resetPassword(@RequestParam("token") String token, @RequestBody @Valid ResetPasswordDto resetPasswordDto) {
         passwordResetService.changePassword(resetPasswordDto.newPassword(), token);
 
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
 
-        EntityModel<Void> response = EntityModel.of(null);
-        response.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        return ResponseEntity.noContent().build();
     }
 
 

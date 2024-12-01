@@ -215,13 +215,9 @@ public class SaleController {
     @ApiResponse(responseCode = "409", description = "Sale já foi confirmada")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<EntityModel<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         saleService.delete(id);
 
-        EntityModel response = EntityModel.of(null);
-        response.add(linkTo(methodOn(SaleController.class).getById(id)).withSelfRel());
-        response.add(linkTo(methodOn(SaleController.class).create(null, null)).withRel("create"));
-        response.add(linkTo(methodOn(SaleController.class).list()).withRel("allSales"));
         return ResponseEntity.noContent().build();
     }
 }
