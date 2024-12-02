@@ -36,8 +36,7 @@ public class EmailController {
     @ApiResponse(responseCode = "400", description = "Dados Invalidos")
     @ApiResponse(responseCode = "404", description = "Email não existe")
     public ResponseEntity<Void> sendEmailResetPassword(@RequestBody @Valid EmailDto emailDto) {
-        emailService.sendPasswordResetEmail(emailDto);
-
+        emailService.sendPasswordResetEmail(emailDto, "Reset password", "Token para redefinir a senha: ");
         return ResponseEntity.noContent().build();
     }
 }

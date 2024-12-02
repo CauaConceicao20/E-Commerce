@@ -18,14 +18,20 @@ public class EmailService implements EmailServiceInterface {
     private final UserService usersService;
     private final PasswordResetService passwordResetService;
 
-    public void sendPasswordResetEmail(EmailDto email) {
-        User user = validateEmail(email.email());
+
+    public void sendEmail(EmailDto destinationEmail, String emailSubject, String emailText) {
         SimpleMailMessage message = new SimpleMailMessage();
-        String token = passwordResetService.generateTokenReset(email.email());
-        message.setTo(email.email());
-        message.setSubject("Reset password");
-        message.setText("Token para redefinir a senha: " + token);
+        message.setTo(destinationEmail.email());
+        message.setSubject(emailSubject);
+        message.setText(emailText);
         mailSender.send(message);
+    }
+
+    public void sendPasswordResetEmail(EmailDto destinationEmail, String emailSubject, String emailText) {
+        User user = validateEmail(destinationEmail.email());
+        String token = passwordResetService.generateTokenReset(destinationEmail.email());
+        sendEmail(destinationEmail, emailSubject, emailText + token);
+
     }
 
     public User validateEmail(String email) {
