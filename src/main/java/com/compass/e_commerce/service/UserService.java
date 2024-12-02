@@ -6,6 +6,7 @@ import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.exception.personalized.AccessRestrictException;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
 import com.compass.e_commerce.exception.personalized.UserInactiveException;
+import com.compass.e_commerce.model.Cart;
 import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.model.User;
@@ -33,14 +34,19 @@ public class UserService implements UserServiceInterface {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;
 
     String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
+    @Transactional
     public User convertDtoToEntity(UserRegistrationDto userRegistrationDto) {
-        return new User(userRegistrationDto);
+        Cart cart = new Cart();
+        cartService.create(cart);
+        return new User(userRegistrationDto, cart);
     }
 
+    @Transactional
     @CacheEvict(value = "users", allEntries = true)
     public User registerUser(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
@@ -52,6 +58,7 @@ public class UserService implements UserServiceInterface {
         return userRepository.save(user);
     }
 
+    @Transactional
     @CacheEvict(value = "users", allEntries = true)
     public User registerUserAdmin(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());

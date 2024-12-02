@@ -47,11 +47,13 @@ public class User implements Serializable {
 
     private boolean active;
 
-    public User(UserRegistrationDto userRegistrationDto) {
+    public User(UserRegistrationDto userRegistrationDto, Cart cart) {
         this.login = userRegistrationDto.login();
         this.password = userRegistrationDto.password();
         this.email = userRegistrationDto.email();
+        this.cart = cart;
         this.active = true;
+
     }
     @CacheEvict(value = "users", allEntries = true)
     public void isActive() {
