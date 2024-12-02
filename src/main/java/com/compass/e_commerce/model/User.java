@@ -33,6 +33,10 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
 
+    @OneToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Sale> sales = new HashSet<>();
 
