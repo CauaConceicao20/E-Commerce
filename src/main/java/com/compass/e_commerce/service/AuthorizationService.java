@@ -3,9 +3,8 @@ package com.compass.e_commerce.service;
 import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.repository.UserRepository;
-import com.compass.e_commerce.service.interfaces.AuthorizationServiceInterface;
+import com.compass.e_commerce.service.interfaces.AuthorizationServiceImp;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthorizationService implements UserDetailsService, AuthorizationServiceInterface {
+public class AuthorizationService implements UserDetailsService, AuthorizationServiceImp {
 
     private final UserRepository userRepository;
 

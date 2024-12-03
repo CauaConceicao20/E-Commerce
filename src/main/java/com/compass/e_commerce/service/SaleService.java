@@ -11,7 +11,7 @@ import com.compass.e_commerce.model.enums.StageSale;
 import com.compass.e_commerce.model.pk.SaleGamePK;
 import com.compass.e_commerce.repository.SaleGameRepository;
 import com.compass.e_commerce.repository.SaleRepository;
-import com.compass.e_commerce.service.interfaces.SaleServiceInterface;
+import com.compass.e_commerce.service.interfaces.SaleServiceImp;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SaleService implements SaleServiceInterface {
+public class SaleService implements SaleServiceImp {
 
     private final UserService userService;
     private final GameService gameService;

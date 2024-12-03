@@ -8,7 +8,9 @@ import com.compass.e_commerce.dto.user.UserDetailsDto;
 import com.compass.e_commerce.dto.user.UserLoginDetailsDto;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.exception.personalized.UserInactiveException;
+import com.compass.e_commerce.model.Cart;
 import com.compass.e_commerce.model.User;
+import com.compass.e_commerce.service.CartService;
 import com.compass.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,6 +41,7 @@ public class AuthenticationController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final CartService cartService;
 
     @PostMapping("/v1/login")
     @Operation(summary = "Login")
@@ -71,6 +74,9 @@ public class AuthenticationController {
     @Transactional
     public ResponseEntity<UserDetailsDto> register(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userService.convertDtoToEntity(userRegistrationDto);
+        Cart cart = new Cart();
+        cartService.create(cart);
+        user.setCart(cart);
         userService.registerUser(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
@@ -88,6 +94,9 @@ public class AuthenticationController {
     @Transactional
     public ResponseEntity<UserDetailsDto> registerAdmin(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userService.convertDtoToEntity(userRegistrationDto);
+        Cart cart = new Cart();
+        cartService.create(cart);
+        user.setCart(cart);
         userService.registerUserAdmin(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();

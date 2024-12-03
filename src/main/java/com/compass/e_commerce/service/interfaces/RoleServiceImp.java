@@ -4,7 +4,7 @@ import com.compass.e_commerce.model.Role;
 
 import java.util.List;
 
-public interface RoleServiceInterface {
+public interface RoleServiceImp {
     Role create(Role role);
 
     List<Role> getAll();

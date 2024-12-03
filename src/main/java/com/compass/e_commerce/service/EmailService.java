@@ -2,17 +2,16 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.user.EmailDto;
 import com.compass.e_commerce.model.User;
-import com.compass.e_commerce.service.interfaces.EmailServiceInterface;
+import com.compass.e_commerce.service.interfaces.EmailServiceImp;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService implements EmailServiceInterface {
+public class EmailService implements EmailServiceImp {
 
     private final JavaMailSender mailSender;
     private final UserService usersService;

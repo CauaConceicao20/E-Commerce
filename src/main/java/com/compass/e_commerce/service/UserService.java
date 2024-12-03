@@ -3,16 +3,14 @@ package com.compass.e_commerce.service;
 import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
-import com.compass.e_commerce.exception.personalized.AccessRestrictException;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
 import com.compass.e_commerce.exception.personalized.UserInactiveException;
-import com.compass.e_commerce.model.Cart;
 import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.repository.RoleRepository;
 import com.compass.e_commerce.repository.UserRepository;
-import com.compass.e_commerce.service.interfaces.UserServiceInterface;
+import com.compass.e_commerce.service.interfaces.UserServiceImp;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,26 +22,22 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserServiceInterface {
+public class UserService implements UserServiceImp {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CartService cartService;
 
     String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     @Transactional
     public User convertDtoToEntity(UserRegistrationDto userRegistrationDto) {
-        Cart cart = new Cart();
-        cartService.create(cart);
-        return new User(userRegistrationDto, cart);
+        return new User(userRegistrationDto);
     }
 
     @Transactional

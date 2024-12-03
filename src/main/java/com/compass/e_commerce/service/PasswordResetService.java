@@ -3,7 +3,7 @@ package com.compass.e_commerce.service;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.compass.e_commerce.config.security.TokenService;
 import com.compass.e_commerce.model.User;
-import com.compass.e_commerce.service.interfaces.PasswordResetServiceInterface;
+import com.compass.e_commerce.service.interfaces.PasswordResetServiceImp;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PasswordResetService implements PasswordResetServiceInterface {
+public class PasswordResetService implements PasswordResetServiceImp {
 
     private final UserService userService;
     private final TokenService tokenService;

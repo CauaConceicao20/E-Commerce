@@ -3,10 +3,9 @@ package com.compass.e_commerce.service.interfaces;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.model.User;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
-public interface UserServiceInterface {
+public interface UserServiceImp {
     User registerUser(User user);
     User registerUserAdmin(User user);
     List<User> getAll();

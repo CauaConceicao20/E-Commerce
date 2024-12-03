@@ -5,7 +5,7 @@ import com.compass.e_commerce.model.Game;
 
 import java.util.List;
 
-public interface GameServiceInterface {
+public interface GameServiceImp {
     Game create(Game game);
     List<Game> getAll();
     Game getById(Long id);

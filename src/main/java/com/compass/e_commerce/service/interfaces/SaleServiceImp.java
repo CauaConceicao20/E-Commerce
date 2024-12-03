@@ -6,7 +6,7 @@ import com.compass.e_commerce.model.Sale;
 
 import java.util.List;
 
-public interface SaleServiceInterface {
+public interface SaleServiceImp {
     Sale create(Sale sale);
     List<SaleListDto> getAll();
     Sale update(Long id, SaleUpdateDto saleUpdateDto);

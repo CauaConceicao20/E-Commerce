@@ -8,6 +8,7 @@ import org.apache.catalina.security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -54,7 +55,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "api/game/v1/create").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/game/v1/update").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
-                        .anyRequest().permitAll()
+                        .anyRequest().hasRole("USER")
                 )
                 .formLogin(form -> {
                     form.loginPage("/login").defaultSuccessUrl("/");

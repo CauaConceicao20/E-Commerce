@@ -47,11 +47,10 @@ public class User implements Serializable {
 
     private boolean active;
 
-    public User(UserRegistrationDto userRegistrationDto, Cart cart) {
+    public User(UserRegistrationDto userRegistrationDto) {
         this.login = userRegistrationDto.login();
         this.password = userRegistrationDto.password();
         this.email = userRegistrationDto.email();
-        this.cart = cart;
         this.active = true;
 
     }
