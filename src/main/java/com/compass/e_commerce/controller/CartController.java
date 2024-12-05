@@ -7,13 +7,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("api/cart")
 @RequiredArgsConstructor
 public class CartController {
 
@@ -23,6 +20,13 @@ public class CartController {
     public ResponseEntity<Void> addGameInCart(@RequestBody @Valid AddGameToCartDto addGameToCartDto) {
         cartService.addGameToTheCart(addGameToCartDto);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/v1/removeGameFromCart/{id}")
+    public ResponseEntity<Void> removeGameFromCart(@PathVariable Long id) {
+        cartService.removeGameFromCart(id);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
