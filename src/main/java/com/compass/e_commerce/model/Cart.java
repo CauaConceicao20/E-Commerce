@@ -25,12 +25,6 @@ public class Cart implements Serializable {
 
     private double totalPrice;
 
-    /*@ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "tb_cart_games", joinColumns = @JoinColumn(name = "cart_id"),
-            inverseJoinColumns = @JoinColumn(name = "game_id"))
-    private List<Game> games = new ArrayList<>();
-     */
-
     @OneToMany(mappedBy = "id.cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartGameItem> cartGameItem = new ArrayList<>();
 

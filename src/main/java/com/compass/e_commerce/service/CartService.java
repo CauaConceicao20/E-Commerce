@@ -1,6 +1,8 @@
 package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.cart.AddGameToCartDto;
+import com.compass.e_commerce.dto.cart.CartGameItemListDto;
+import com.compass.e_commerce.dto.cart.CartGameItemResponseDto;
 import com.compass.e_commerce.model.Cart;
 import com.compass.e_commerce.model.CartGameItem;
 import com.compass.e_commerce.model.Game;
@@ -56,6 +58,15 @@ public class CartService implements CartServiceImp {
             authenticatedUserCart.setTotalPrice(authenticatedUserCart.getTotalPrice() + game.getPrice() * addGameToCartDto.quantityGameInCart());
         }
         cartRepository.save(authenticatedUserCart);
+    }
+
+    public CartGameItemResponseDto listGamesInTheCart() {
+        User authenticatedUser = userService.getById(userService.getAuthenticatedUserId());
+        Cart authenticatedUserCart = authenticatedUser.getCart();
+
+        List<CartGameItemListDto> items = authenticatedUserCart.getCartGameItem().stream().map(CartGameItemListDto::new).toList();
+
+        return new CartGameItemResponseDto(items,authenticatedUserCart.getQuantityOfItems(), authenticatedUserCart.getTotalPrice());
     }
 
     @Transactional
