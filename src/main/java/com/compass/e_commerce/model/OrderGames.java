@@ -1,9 +1,8 @@
 package com.compass.e_commerce.model;
 
-import com.compass.e_commerce.model.pk.SaleGamePK;
+import com.compass.e_commerce.model.pk.OrderGamePK;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -15,28 +14,28 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "tb_sale_games")
-public class SaleGame implements Serializable {
+@Table(name = "tb_order_games")
+public class OrderGames implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @EmbeddedId
-    SaleGamePK id = new SaleGamePK();
+    OrderGamePK id = new OrderGamePK();
 
     private Integer quantity;
 
-    public SaleGame(Sale sale, Game game, Integer quantity) {
-        id.setSale(sale);
+    public OrderGames(Order order, Game game, Integer quantity) {
+        id.setOrder(order);
         id.setGame(game);
         this.quantity = quantity;
     }
 
-    public Sale getSale() {
-        return id.getSale();
+    public Order getOrder() {
+        return id.getOrder();
     }
 
-    public void setSale(Sale sale) {
-        id.setSale(sale);
+    public void setOrder(Order order) {
+        id.setOrder(order);
     }
 
     public Game getGame() {

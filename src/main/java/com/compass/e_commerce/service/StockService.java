@@ -1,7 +1,7 @@
 package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.model.Game;
-import com.compass.e_commerce.model.SaleGame;
+import com.compass.e_commerce.model.OrderGames;
 import com.compass.e_commerce.service.interfaces.StockServiceImp;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -20,14 +20,14 @@ public class StockService implements StockServiceImp {
     }
 
     @Transactional
-    public void adjustStockBasedOnSaleQuantityChange(SaleGame existingSaleGame, int newQuantity) {
-        int currentQuantity = existingSaleGame.getQuantity();
+    public void adjustStockBasedOnSaleQuantityChange(OrderGames existingOrderGames, int newQuantity) {
+        int currentQuantity = existingOrderGames.getQuantity();
         int quantityDifference = newQuantity - currentQuantity;
 
         if (quantityDifference > 0) {
-            stockReduction(existingSaleGame.getGame(), quantityDifference);
+            stockReduction(existingOrderGames.getGame(), quantityDifference);
         } else if (quantityDifference < 0) {
-            stockReplenishment(existingSaleGame.getGame(), -quantityDifference);
+            stockReplenishment(existingOrderGames.getGame(), -quantityDifference);
         }
     }
 }

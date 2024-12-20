@@ -81,8 +81,8 @@ public class GameService implements GameServiceImp {
             throw new GameIsInactiveException("O Game está inativado");
         }
 
-        if (!game.getSaleGame().isEmpty()) {
-            throw new DeletionNotAllowedException("O Game está associado a uma Sale.");
+        if (!game.getOrderGames().isEmpty()) {
+            throw new DeletionNotAllowedException("O Game está associado a uma Order.");
         }
         gameRepository.deleteById(id);
     }

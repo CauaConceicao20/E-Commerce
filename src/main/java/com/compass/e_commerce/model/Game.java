@@ -60,7 +60,7 @@ public class Game implements Serializable {
     private List<CartGameItem> cartGameItem = new ArrayList<>();
 
     @OneToMany(mappedBy = "id.game", cascade = CascadeType.ALL)
-    private Set<SaleGame> saleGame = new HashSet<>();
+    private Set<OrderGames> orderGames = new HashSet<>();
 
     private boolean active;
 

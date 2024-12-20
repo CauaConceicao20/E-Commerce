@@ -54,8 +54,8 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "api/auth/v1/registerAdmin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "api/game/v1/create").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "api/game/v1/update").hasRole("ADMIN")
-                        //.requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "api/cart/v1/removeGameFromCart/*").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
                         .anyRequest().hasRole("USER")
                 )
                 .formLogin(form -> {

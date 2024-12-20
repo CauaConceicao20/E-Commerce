@@ -1,4 +1,4 @@
-package com.compass.e_commerce.dto.sale;
+package com.compass.e_commerce.dto.order;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -7,17 +7,17 @@ import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 
-public record SaleUpdateDto(
-        @NotEmpty
+public record SaleRegistrationDto(
         @Valid
-        List<SaleGameUpdateDto> games
+        @NotEmpty
+        List<SaleGameRegistrationDto> games
 ) {
-    public static record SaleGameUpdateDto(
+    public static record SaleGameRegistrationDto(
+            @Positive
             @NotNull
             Long gameId,
             @Positive
             Integer quantity
-    ){
-
+    ) {
     }
 }

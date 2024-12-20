@@ -1,7 +1,6 @@
-package com.compass.e_commerce.dto.sale;
+package com.compass.e_commerce.dto.order;
 
-import com.compass.e_commerce.model.Sale;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import com.compass.e_commerce.model.Order;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,13 +22,13 @@ public class SaleDetailsDto extends RepresentationModel<SaleDetailsDto> {
     private Set<SaleGameListDto> games;
     private Double totalPrice;
 
-    public SaleDetailsDto(Sale sale) {
-        this(sale.getId(),
-                sale.getCreationTimestamp(),
-                sale.getConfirmationTimestamp(),
-                sale.getSaleGame().stream()
+    public SaleDetailsDto(Order order) {
+        this(order.getId(),
+                order.getCreationTimestamp(),
+                order.getConfirmationTimestamp(),
+                order.getOrderGames().stream()
                         .map(SaleGameListDto::new)
                         .collect(Collectors.toSet()),
-                sale.getTotalPrice());
+                order.getTotalPrice());
     }
 }

@@ -4,6 +4,7 @@ package com.compass.e_commerce.model;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.cache.annotation.CacheEvict;
 
 import java.io.Serializable;
@@ -33,12 +34,19 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
 
+    @Column(unique = true, nullable = false)
+    @CPF
+    private String cpf;
+
+    @Column(nullable = false)
+    private String phone;
+
     @OneToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Sale> sales = new HashSet<>();
+    private Set<Order> orders = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_user_roles", joinColumns = @JoinColumn(name = "user_id"),

@@ -1,6 +1,6 @@
 package com.compass.e_commerce.model.enums;
 
-public enum StageSale {
+public enum Stage {
     UNCONFIRMED,
     CONFIRMED
 }

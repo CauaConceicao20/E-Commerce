@@ -1,17 +1,13 @@
 package com.compass.e_commerce.model;
 
-import com.compass.e_commerce.model.enums.StageSale;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.compass.e_commerce.model.enums.PaymentMethod;
+import com.compass.e_commerce.model.enums.Stage;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -20,8 +16,8 @@ import java.util.Set;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "tb_sales")
-public class Sale implements Serializable {
+@Table(name = "tb_orders")
+public class Order implements Serializable {
 
     private static final long serialVersionUID= 1L;
 
@@ -39,12 +35,20 @@ public class Sale implements Serializable {
     @Column(nullable = true)
     private LocalDateTime confirmationTimestamp;
 
-    @OneToMany(mappedBy = "id.sale", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<SaleGame> saleGame = new HashSet<>();
+    @OneToMany(mappedBy = "id.order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrderGames> orderGames = new HashSet<>();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private StageSale stageSale;
+    private Stage stageOrder;
 
+    @Column(nullable = true)
+    private String qrCodeId;
+
+    @Column(nullable = true)
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    @Column(nullable = false)
     private double totalPrice;
 }

@@ -1,8 +1,8 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.config.security.SecurityConfigurations;
-import com.compass.e_commerce.dto.sale.*;
-import com.compass.e_commerce.model.Sale;
+import com.compass.e_commerce.dto.order.*;
+import com.compass.e_commerce.model.Order;
 import com.compass.e_commerce.service.SaleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,11 +12,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
@@ -27,7 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/api/sale")
 @RequiredArgsConstructor
-@Tag(name = "Sale")
+@Tag(name = "Order")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class SaleController {
 
@@ -40,15 +38,15 @@ public class SaleController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<SaleDetailsDto> create(@RequestBody @Valid SaleRegistrationDto saleRegistrationDto, UriComponentsBuilder uriBuilder) {
-        Sale sale = saleService.convertDtoToEntity(saleRegistrationDto);
-        saleService.create(sale);
-        SaleDetailsDto saleDetailsDto = new SaleDetailsDto(sale);
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(sale.getId())).withSelfRel());
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).confirmSale(sale.getId())).withRel("confirmSale"));
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(sale.getId())).withRel("update"));
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(sale.getId())).withRel("delete"));
+        Order order = saleService.convertDtoToEntity(saleRegistrationDto);
+        saleService.create(order);
+        SaleDetailsDto saleDetailsDto = new SaleDetailsDto(order);
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(order.getId())).withSelfRel());
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).confirmSale(order.getId())).withRel("confirmSale"));
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(order.getId())).withRel("update"));
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(order.getId())).withRel("delete"));
         saleDetailsDto.add(linkTo(methodOn(SaleController.class).list()).withRel("allSales"));
-        var uri = uriBuilder.path("/sale/{id}").buildAndExpand(sale.getId()).toUri();
+        var uri = uriBuilder.path("/order/{id}").buildAndExpand(order.getId()).toUri();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(saleDetailsDto);
     }
@@ -88,18 +86,18 @@ public class SaleController {
     }
 
     @PutMapping("/v1/confirm/{id}")
-    @Operation(summary = "Confirm Sale")
+    @Operation(summary = "Confirm Order")
     @ApiResponse(responseCode = "200", description = "Confirmação de venda bem sucedida")
-    @ApiResponse(responseCode = "404", description = "Sale não encontrada")
+    @ApiResponse(responseCode = "404", description = "Order não encontrada")
     @ApiResponse(responseCode = "409", description = "Essa venda ja foi confirmada")
     public ResponseEntity<SaleDetailsDto> confirmSale(@PathVariable Long id) {
-        Sale sale = saleService.confirmedSale(id);
-        SaleDetailsDto saleDetailsDto = new SaleDetailsDto(sale);
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(sale.getId())).withSelfRel());
+        Order order = saleService.confirmedSale(id);
+        SaleDetailsDto saleDetailsDto = new SaleDetailsDto(order);
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(order.getId())).withSelfRel());
         saleDetailsDto.add(linkTo(methodOn(SaleController.class).create(null,null)).withRel("create"));
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).generationReportDay(LocalDate.from(sale.getConfirmationTimestamp()))).withRel("reportSaleDay"));
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).generationReportWeek(LocalDate.from(sale.getConfirmationTimestamp()))).withRel("reportSaleWeek"));
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).generationReportMonth(LocalDate.from(sale.getConfirmationTimestamp()))).withRel("reportSalMonth"));
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).generationReportDay(LocalDate.from(order.getConfirmationTimestamp()))).withRel("reportSaleDay"));
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).generationReportWeek(LocalDate.from(order.getConfirmationTimestamp()))).withRel("reportSaleWeek"));
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).generationReportMonth(LocalDate.from(order.getConfirmationTimestamp()))).withRel("reportSalMonth"));
         saleDetailsDto.add(linkTo(methodOn(SaleController.class).list()).withRel("allSales"));
 
         return ResponseEntity.ok().body(saleDetailsDto);
@@ -170,7 +168,7 @@ public class SaleController {
     }
 
     @PutMapping("/v1/update/{id}")
-    @Operation(summary = "Update Sale")
+    @Operation(summary = "Update Order")
     @ApiResponse(responseCode = "200", description = "Atualização bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "404", description = "Venda não encontrada")
@@ -189,7 +187,7 @@ public class SaleController {
     }
 
     @PutMapping("/v1/swap")
-    @Operation(summary = "Exchange Games in Sale")
+    @Operation(summary = "Exchange Games in Order")
     @ApiResponse(responseCode = "200", description = "Troca bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "404", description = "Venda não encontrada")
@@ -197,22 +195,22 @@ public class SaleController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<SaleDetailsDto> swapGame(@RequestBody @Valid SwapGameDto swapGameDto) {
-        Sale sale = saleService.swapGame(swapGameDto);
-        SaleDetailsDto saleDetailsDto = new SaleDetailsDto(sale);
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(sale.getId())).withSelfRel());
+        Order order = saleService.swapGame(swapGameDto);
+        SaleDetailsDto saleDetailsDto = new SaleDetailsDto(order);
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(order.getId())).withSelfRel());
         saleDetailsDto.add(linkTo(methodOn(SaleController.class).create(null, null)).withRel("create"));
         saleDetailsDto.add(linkTo(methodOn(SaleController.class).list()).withRel("allSale"));
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).updateSale(sale.getId(), null)).withRel("update"));
-        saleDetailsDto.add(linkTo(methodOn(SaleController.class).delete(sale.getId())).withRel("delete"));
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).updateSale(order.getId(), null)).withRel("update"));
+        saleDetailsDto.add(linkTo(methodOn(SaleController.class).delete(order.getId())).withRel("delete"));
 
-        return ResponseEntity.ok().body(new SaleDetailsDto(sale));
+        return ResponseEntity.ok().body(new SaleDetailsDto(order));
     }
 
     @DeleteMapping("/v1/delete/{id}")
-    @Operation(summary = "Delete Sale")
+    @Operation(summary = "Delete Order")
     @ApiResponse(responseCode = "204", description = "Deleção bem sucedida")
-    @ApiResponse(responseCode = "404", description = "Sale não encontrado")
-    @ApiResponse(responseCode = "409", description = "Sale já foi confirmada")
+    @ApiResponse(responseCode = "404", description = "Order não encontrado")
+    @ApiResponse(responseCode = "409", description = "Order já foi confirmada")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

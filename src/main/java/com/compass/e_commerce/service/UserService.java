@@ -155,7 +155,7 @@ public class UserService implements UserServiceImp {
             throw new UserInactiveException("Usuário está inativo");
         }
 
-        if(!user.getSales().isEmpty()) {
+        if(!user.getOrders().isEmpty()) {
             throw new DeletionNotAllowedException("O Usuario está associado a vendas.");
         }
         userRepository.deleteById(id);

@@ -1,14 +1,14 @@
 package com.compass.e_commerce.service;
 
-import com.compass.e_commerce.dto.sale.*;
+import com.compass.e_commerce.dto.order.*;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
 import com.compass.e_commerce.exception.personalized.SaleAlreadyConfirmedException;
 import com.compass.e_commerce.model.Game;
-import com.compass.e_commerce.model.Sale;
-import com.compass.e_commerce.model.SaleGame;
+import com.compass.e_commerce.model.Order;
+import com.compass.e_commerce.model.OrderGames;
 import com.compass.e_commerce.model.User;
-import com.compass.e_commerce.model.enums.StageSale;
-import com.compass.e_commerce.model.pk.SaleGamePK;
+import com.compass.e_commerce.model.enums.Stage;
+import com.compass.e_commerce.model.pk.OrderGamePK;
 import com.compass.e_commerce.repository.SaleGameRepository;
 import com.compass.e_commerce.repository.SaleRepository;
 import com.compass.e_commerce.service.interfaces.SaleServiceImp;
@@ -37,126 +37,126 @@ public class SaleService implements SaleServiceImp {
     private final SaleRepository saleRepository;
     private final SaleGameRepository saleGameRepository;
 
-    public Sale convertDtoToEntity(SaleRegistrationDto dataDto) {
-        Sale sale = new Sale();
+    public Order convertDtoToEntity(SaleRegistrationDto dataDto) {
+        Order order = new Order();
         double totalPrice = 0.0;
         User user = userService.getById(userService.getAuthenticatedUserId());
-        sale.setUser(user);
-        sale.setCreationTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        order.setUser(user);
+        order.setCreationTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         for (SaleRegistrationDto.SaleGameRegistrationDto saleGameDto : dataDto.games()) {
             Game game = gameService.getById(saleGameDto.gameId());
 
-            SaleGame saleGame = new SaleGame();
-            saleGame.setId(new SaleGamePK(sale, game));
+            OrderGames orderGames = new OrderGames();
+            orderGames.setId(new OrderGamePK(order, game));
 
-            saleGame.setQuantity(saleGameDto.quantity());
-            sale.getSaleGame().add(saleGame);
-            game.getSaleGame().add(saleGame);
+            orderGames.setQuantity(saleGameDto.quantity());
+            order.getOrderGames().add(orderGames);
+            game.getOrderGames().add(orderGames);
 
             totalPrice += game.getPrice() * saleGameDto.quantity();
         }
-        sale.setStageSale(StageSale.UNCONFIRMED);
-        sale.setTotalPrice(totalPrice);
-        return sale;
+        order.setStageOrder(Stage.UNCONFIRMED);
+        order.setTotalPrice(totalPrice);
+        return order;
     }
 
-    @CacheEvict(value = "sales", allEntries = true)
-    public Sale create(Sale sale) {
-        return saleRepository.save(sale);
+    @CacheEvict(value = "orders", allEntries = true)
+    public Order create(Order order) {
+        return saleRepository.save(order);
     }
 
-    @Cacheable("sales")
+    @Cacheable("orders")
     public List<SaleListDto> getAll() {
         return saleRepository.findAll().stream()
                 .map(SaleListDto::new)
                 .collect(Collectors.toList());
     }
 
-    public Sale getId(Long id) {
-        Sale sale = saleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Sale não encontrada id :" + id));
-        return sale;
+    public Order getId(Long id) {
+        Order order = saleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order não encontrada id :" + id));
+        return order;
     }
 
-    public List<Sale> saleReportsDay(LocalDate date) {
-        List<Sale> list = saleRepository.findByConfirmationDateAndStage(date);
+    public List<Order> saleReportsDay(LocalDate date) {
+        List<Order> list = saleRepository.findByConfirmationDateAndStage(date);
         return list;
     }
 
-    public List<Sale> saleReportsWeek(LocalDate date) {
+    public List<Order> saleReportsWeek(LocalDate date) {
         LocalDate firstDayOfWeek = date.with(WeekFields.ISO.getFirstDayOfWeek());
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
 
-        List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfWeek, lastDayOfWeek);
+        List<Order> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfWeek, lastDayOfWeek);
         return list;
     }
 
-    public List<Sale> saleReportsMonth(LocalDate date) {
+    public List<Order> SaleReportsMonth(LocalDate date) {
         LocalDate firstDayOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
 
-        List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfMonth, lastDayOfMonth);
+        List<Order> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfMonth, lastDayOfMonth);
         return list;
     }
 
     @Transactional
-    @CacheEvict(value = "sales", allEntries = true)
-    public Sale update(Long id, SaleUpdateDto saleUpdateDto) {
-        Sale sale = saleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Id da Sale não existe"));
+    @CacheEvict(value = "orders", allEntries = true)
+    public Order update(Long id, SaleUpdateDto saleUpdateDto) {
+        Order order = saleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Id da Order não existe"));
 
-        if (sale.getStageSale() == StageSale.UNCONFIRMED) {
+        if (order.getStageOrder() == Stage.UNCONFIRMED) {
             for (SaleUpdateDto.SaleGameUpdateDto saleGameUpdateDto : saleUpdateDto.games()) {
-                SaleGame existingSaleGame = sale.getSaleGame().stream()
+                OrderGames existingOrderGames = order.getOrderGames().stream()
                         .filter(saleGame -> saleGame.getGame().getId().equals(saleGameUpdateDto.gameId()))
                         .findFirst()
                         .orElse(null);
 
-                if (existingSaleGame == null) {
+                if (existingOrderGames == null) {
                     throw new NoSuchElementException("Id do game não existe");
                 }
-                stockService.adjustStockBasedOnSaleQuantityChange(existingSaleGame, saleGameUpdateDto.quantity());
-                existingSaleGame.setQuantity(saleGameUpdateDto.quantity());
+                stockService.adjustStockBasedOnSaleQuantityChange(existingOrderGames, saleGameUpdateDto.quantity());
+                existingOrderGames.setQuantity(saleGameUpdateDto.quantity());
             }
         } else {
             throw new SaleAlreadyConfirmedException("Essa venda já foi confirmada");
         }
-        double totalPrice = sale.getSaleGame().stream()
+        double totalPrice = order.getOrderGames().stream()
                 .mapToDouble(saleGame -> saleGame.getGame().getPrice() * saleGame.getQuantity())
                 .sum();
-        sale.setTotalPrice(totalPrice);
-        return saleRepository.save(sale);
+        order.setTotalPrice(totalPrice);
+        return saleRepository.save(order);
     }
 
     @Transactional
-    @CacheEvict(value = "sales", allEntries = true)
-    public Sale confirmedSale(Long id) {
-        Sale sale = saleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Não existe Sale com esse id"));
+    @CacheEvict(value = "orders", allEntries = true)
+    public Order confirmedOrder(Long id) {
+        Order order = saleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Não existe Order com esse id"));
 
-        if (sale.getStageSale() == StageSale.CONFIRMED) {
+        if (order.getStageOrder() == Stage.CONFIRMED) {
             throw new SaleAlreadyConfirmedException("Essa venda já foi confirmada");
         }
-        sale.getSaleGame().forEach(saleGame -> {
+        order.getOrderGames().forEach(saleGame -> {
             Game game = saleGame.getGame();
             int quantity = saleGame.getQuantity();
             stockService.stockReduction(game, quantity);
         });
 
-        sale.setStageSale(StageSale.CONFIRMED);
-        sale.setConfirmationTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        order.setStageOrder(Stage.CONFIRMED);
+        order.setConfirmationTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
-        return saleRepository.save(sale);
+        return saleRepository.save(order);
     }
 
     @Transactional
-    @CacheEvict(value = "sales", allEntries = true)
-    public Sale swapGame(SwapGameDto swapGameDto) {
-        Sale sale = saleRepository.findById(swapGameDto.id())
-                .orElseThrow(() -> new EntityNotFoundException("Não existe Sale com esse id"));
+    @CacheEvict(value = "orders", allEntries = true)
+    public Order swapGame(SwapGameDto swapGameDto) {
+        Order order = saleRepository.findById(swapGameDto.id())
+                .orElseThrow(() -> new EntityNotFoundException("Não existe Order com esse id"));
 
-        if (sale.getStageSale() == StageSale.CONFIRMED) {
+        if (order.getStageOrder() == Stage.CONFIRMED) {
             throw new SaleAlreadyConfirmedException("Essa venda já foi confirmada");
         }
 
@@ -165,22 +165,22 @@ public class SaleService implements SaleServiceImp {
                 throw new IllegalArgumentException("O ID do novo jogo não pode ser igual ao ID do jogo atual.");
             }
 
-            boolean newGameAlreadyInSale = sale.getSaleGame().stream()
+            boolean newGameAlreadyInSale = order.getOrderGames().stream()
                     .anyMatch(saleGame -> saleGame.getGame().getId().equals(swapGame.newGameId()));
             if (newGameAlreadyInSale) {
                 throw new IllegalArgumentException("O ID do novo jogo já existe na venda.");
             }
 
-            SaleGame existingSaleGame = sale.getSaleGame().stream()
+            OrderGames existingOrderGames = order.getOrderGames().stream()
                     .filter(saleGame -> saleGame.getGame().getId().equals(swapGame.currentGameId()))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("ID do jogo não encontrado na venda"));
 
-            Game oldGame = existingSaleGame.getGame();
-            int quantity = existingSaleGame.getQuantity();
+            Game oldGame = existingOrderGames.getGame();
+            int quantity = existingOrderGames.getQuantity();
 
-            sale.getSaleGame().remove(existingSaleGame);
-            saleGameRepository.delete(existingSaleGame);
+            order.getOrderGames().remove(existingOrderGames);
+            saleGameRepository.delete(existingOrderGames);
             saleRepository.flush();
 
             Game newGame = gameService.getById(swapGame.newGameId());
@@ -189,26 +189,26 @@ public class SaleService implements SaleServiceImp {
                 throw new IllegalArgumentException("Quantidade do novo jogo excede o estoque disponível.");
             }
 
-            SaleGame newSaleGame = new SaleGame();
-            newSaleGame.setId(new SaleGamePK(sale, newGame));
-            newSaleGame.setQuantity(swapGame.quantity());
+            OrderGames newOrderGames = new OrderGames();
+            newOrderGames.setId(new OrderGamePK(order, newGame));
+            newOrderGames.setQuantity(swapGame.quantity());
 
-            sale.getSaleGame().add(newSaleGame);
+            order.getOrderGames().add(newOrderGames);
         }
-        double totalPrice = sale.getSaleGame().stream()
+        double totalPrice = order.getOrderGames().stream()
                 .mapToDouble(saleGame -> saleGame.getId().getGame().getPrice() * saleGame.getQuantity())
                 .sum();
 
-        sale.setTotalPrice(totalPrice);
-        return saleRepository.save(sale);
+        order.setTotalPrice(totalPrice);
+        return saleRepository.save(order);
     }
 
-    @CacheEvict(value = "sales", allEntries = true)
+    @CacheEvict(value = "orders", allEntries = true)
     public void delete(Long id) {
-        Sale sale = saleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Não existe Sale com esse id"));
+        Order order = saleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Não existe Order com esse id"));
 
-        if (sale.getStageSale() == StageSale.CONFIRMED) {
+        if (order.getStageOrder() == Stage.CONFIRMED) {
             throw new DeletionNotAllowedException("A Venda já foi confirmada");
         }
         saleRepository.deleteById(id);

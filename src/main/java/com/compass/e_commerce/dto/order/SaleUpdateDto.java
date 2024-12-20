@@ -1,4 +1,4 @@
-package com.compass.e_commerce.dto.sale;
+package com.compass.e_commerce.dto.order;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -7,21 +7,17 @@ import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 
-public record SwapGameDto(
-        @NotNull
-        Long id,
-        @Valid
+public record SaleUpdateDto(
         @NotEmpty
-        List<SwapGameListDto> swapGames
+        @Valid
+        List<SaleGameUpdateDto> games
 ) {
-    public static record SwapGameListDto(
+    public static record SaleGameUpdateDto(
             @NotNull
-            Long currentGameId,
-            @NotNull
-            Long newGameId,
+            Long gameId,
             @Positive
             Integer quantity
-    ) {
+    ){
 
     }
 }
