@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -92,7 +93,7 @@ public class SaleService implements SaleServiceImp {
         return list;
     }
 
-    public List<Order> SaleReportsMonth(LocalDate date) {
+    public List<Order> saleReportsMonth(LocalDate date) {
         LocalDate firstDayOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
 
@@ -212,5 +213,10 @@ public class SaleService implements SaleServiceImp {
             throw new DeletionNotAllowedException("A Venda já foi confirmada");
         }
         saleRepository.deleteById(id);
+    }
+
+    @KafkaListener(topics = "payment-confirmation", groupId = "payment-confirmation-group")
+    public void processarPagamento(String message) {
+        System.out.println("Pagamento confirmado" + message);
     }
 }

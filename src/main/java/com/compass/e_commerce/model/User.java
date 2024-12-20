@@ -41,6 +41,9 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String phone;
 
+    @Embedded
+    private Address address;
+
     @OneToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;

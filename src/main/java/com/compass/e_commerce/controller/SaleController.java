@@ -91,7 +91,7 @@ public class SaleController {
     @ApiResponse(responseCode = "404", description = "Order não encontrada")
     @ApiResponse(responseCode = "409", description = "Essa venda ja foi confirmada")
     public ResponseEntity<SaleDetailsDto> confirmSale(@PathVariable Long id) {
-        Order order = saleService.confirmedSale(id);
+        Order order = saleService.confirmedOrder(id);
         SaleDetailsDto saleDetailsDto = new SaleDetailsDto(order);
         saleDetailsDto.add(linkTo(methodOn(SaleController.class).getById(order.getId())).withSelfRel());
         saleDetailsDto.add(linkTo(methodOn(SaleController.class).create(null,null)).withRel("create"));
