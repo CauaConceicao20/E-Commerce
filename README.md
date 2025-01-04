@@ -61,7 +61,7 @@
 </ul>
 
 <h4>🔗 Detalhes da API de Pagamento Pix</h4>
-<p>Api de Pagamento Link: https://github.com/CauaConceicao20/Payment-System.git](https://github.com/CauaConceicao20/Payment-System.git)</p>
+<p>Link: https://github.com/CauaConceicao20/Payment-System.git](https://github.com/CauaConceicao20/Payment-System.git)</p>
 
 <h3>2. API Gateway</h3>
 <ul>
