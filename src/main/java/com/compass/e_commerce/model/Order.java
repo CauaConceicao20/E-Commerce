@@ -3,6 +3,7 @@ package com.compass.e_commerce.model;
 import com.compass.e_commerce.model.enums.PaymentMethod;
 import com.compass.e_commerce.model.enums.Stage;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.io.Serializable;
@@ -19,7 +20,7 @@ import java.util.Set;
 @Table(name = "tb_orders")
 public class Order implements Serializable {
 
-    private static final long serialVersionUID= 1L;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,15 +33,15 @@ public class Order implements Serializable {
     @Column(nullable = false)
     private LocalDateTime creationTimestamp;
 
-    @Column(nullable = true)
-    private LocalDateTime confirmationTimestamp;
-
     @OneToMany(mappedBy = "id.order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderGames> orderGames = new HashSet<>();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Stage stageOrder;
+    private Stage stage;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Sale sale;
 
     @Column(nullable = true)
     private String qrCodeId;
@@ -50,5 +51,24 @@ public class Order implements Serializable {
     private PaymentMethod paymentMethod;
 
     @Column(nullable = false)
+    @Positive
     private double totalPrice;
+
+
+    public Order(User user, LocalDateTime creationTimestamp, Stage stage, PaymentMethod paymentMethod) {
+        this.user = user;
+        this.creationTimestamp = creationTimestamp;
+        this.stage = stage;
+        this.paymentMethod = paymentMethod;
+    }
+
+    public Order(User user, LocalDateTime creationTimestamp, Stage stage, PaymentMethod paymentMethod, double totalPrice) {
+        this.user = user;
+        this.creationTimestamp = creationTimestamp;
+        this.stage = stage;
+        this.paymentMethod = paymentMethod;
+        this.totalPrice = totalPrice;
+    }
+
+
 }

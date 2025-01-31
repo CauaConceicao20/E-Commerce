@@ -27,7 +27,6 @@ public class UserDetailsImpl implements UserDetails {
             if(role.getName() == RoleNameEnum.ADMIN) return List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"));
         }
         return List.of(new SimpleGrantedAuthority("USER"));
-
     }
 
     public Long getId() {

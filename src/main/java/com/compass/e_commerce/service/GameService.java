@@ -38,6 +38,11 @@ public class GameService implements GameServiceImp {
         return gameRepository.findByActiveTrue();
     }
 
+    public List<Game> findAllById(List<Long> ids) {
+       return gameRepository.findAllById(ids);
+    }
+
+    @Cacheable("games")
     public Game getById(Long id) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Game não encontrado id: " + id));

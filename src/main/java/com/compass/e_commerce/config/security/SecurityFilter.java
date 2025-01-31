@@ -1,6 +1,7 @@
 package com.compass.e_commerce.config.security;
 
 import com.compass.e_commerce.repository.UserRepository;
+import com.compass.e_commerce.service.CacheService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
-
+    private final CacheService cacheService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -29,11 +30,12 @@ public class SecurityFilter extends OncePerRequestFilter {
             var login = tokenService.getSubject(token);
             var user = userRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
 
-            if(user != null && user.getActive()) {
+            if (user != null && user.getActive()) {
                 var userDetails = new UserDetailsImpl(user);
 
                 var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                String requestURI = request.getRequestURI();
             }
         }
         filterChain.doFilter(request, response);
@@ -42,7 +44,9 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private String recoverToken(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
-        if (authHeader == null) return null;
+        if (authHeader == null) {
+            return null;
+        }
         return authHeader.replace("Bearer ", "");
     }
 }

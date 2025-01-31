@@ -16,8 +16,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -34,7 +32,7 @@ public class GameController {
 
     private final GameService gameService;
 
-    @PostMapping("/v1/create")
+    @PostMapping("/v1/createRole")
     @Operation(summary = "Create Game")
     @ApiResponse(responseCode = "201", description = "Criação de Game bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dados invalidos")
@@ -67,7 +65,7 @@ public class GameController {
             game.add(linkTo(methodOn(GameController.class).delete(game.getId())).withRel("delete"));
         }
         CollectionModel<GameListDto> collectionModel = CollectionModel.of(listGame);
-        collectionModel.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("create"));
+        collectionModel.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("createRole"));
 
         return ResponseEntity.ok().body(collectionModel);
     }
@@ -76,7 +74,7 @@ public class GameController {
     public ResponseEntity<GameDetailsDto> getById(@PathVariable Long id) {
         var game = gameService.getById(id);
         GameDetailsDto gameDetailsDto = new GameDetailsDto(game);
-        gameDetailsDto.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("create"));
+        gameDetailsDto.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("createRole"));
         gameDetailsDto.add(linkTo(methodOn(GameController.class).update(game.getId(), null)).withRel("update"));
         gameDetailsDto.add(linkTo(methodOn(GameController.class).delete(game.getId())).withRel("delete"));
         gameDetailsDto.add(linkTo(methodOn(GameController.class).listAll()).withRel("allGames"));
@@ -96,7 +94,7 @@ public class GameController {
         Game game = gameService.update(id, gameUpdateDto);
         GameDetailsDto gameDetailsDto = new GameDetailsDto(game);
         gameDetailsDto.add(linkTo(methodOn(GameController.class).getById(id)).withSelfRel());
-        gameDetailsDto.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("create"));
+        gameDetailsDto.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("createRole"));
         gameDetailsDto.add(linkTo(methodOn(GameController.class).delete(game.getId())).withRel("delete"));
         gameDetailsDto.add(linkTo(methodOn(GameController.class).listAll()).withRel("allGames"));
 

@@ -9,17 +9,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/email")
@@ -36,7 +30,7 @@ public class EmailController {
     @ApiResponse(responseCode = "400", description = "Dados Invalidos")
     @ApiResponse(responseCode = "404", description = "Email não existe")
     public ResponseEntity<Void> sendEmailResetPassword(@RequestBody @Valid EmailDto emailDto) {
-        emailService.sendPasswordResetEmail(emailDto, "Reset password", "Token para redefinir a senha: ");
+        emailService.sendPasswordResetEmail(emailDto.email(), "Reset password", "Token para redefinir a senha: ");
         return ResponseEntity.noContent().build();
     }
 }

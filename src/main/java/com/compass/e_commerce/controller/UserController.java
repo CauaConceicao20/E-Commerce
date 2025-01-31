@@ -1,9 +1,13 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.config.security.SecurityConfigurations;
+import com.compass.e_commerce.dto.role.RoleDetailsDto;
+import com.compass.e_commerce.dto.role.RoleListDto;
+import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.dto.user.UserDetailsDto;
 import com.compass.e_commerce.dto.user.UserListDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
+import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,8 +18,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -126,5 +129,30 @@ public class UserController {
         userService.delete(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/v1/createRole")
+    @Operation(summary = "Create Role")
+    @ApiResponse(responseCode = "201", description = "Criação de Role bem sucedida")
+    @ApiResponse(responseCode = "400", description = "Dados invalidos")
+    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
+    public ResponseEntity<RoleDetailsDto> createRole(@RequestBody @Valid RoleRegistrationDto roleRegistrationDto) {
+       Role role = userService.createRole(userService.convertDtoToEntity(roleRegistrationDto));
+
+        RoleDetailsDto roleDetailsDto = new RoleDetailsDto(role);
+        roleDetailsDto.add(linkTo(methodOn(UserController.class)).withRel("all roles"));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(roleDetailsDto);
+    }
+    @GetMapping("/v1/getAllRoles")
+    @Operation(summary = "List Roles")
+    @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
+    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
+    public ResponseEntity<List<RoleListDto>> list() {
+        var roles = userService.getAllRoles().stream().map(RoleListDto::new).toList();
+        for(RoleListDto role : roles) {
+            role.add(linkTo(methodOn(UserController.class).createRole(null)).withRel("createRole"));
+        }
+        return ResponseEntity.ok().body(roles);
     }
 }

@@ -50,16 +50,11 @@ public class Game implements Serializable {
     @Column(nullable = false)
     @DecimalMin("1.0")
     private double price;
-/*
-    @ManyToMany(mappedBy = "games")
-    private List<Cart> carts = new ArrayList<>();
-
- */
 
     @OneToMany(mappedBy = "id.game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartGameItem> cartGameItem = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.game", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "id.game", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderGames> orderGames = new HashSet<>();
 
     private boolean active;

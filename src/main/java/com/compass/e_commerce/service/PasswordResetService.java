@@ -17,7 +17,7 @@ public class PasswordResetService implements PasswordResetServiceImp {
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
 
-    public String generateTokenReset(String email) {
+    public String initiatePasswordReset(String email) {
         User user = userService.findByEmail(email);
         if (user == null) {
             throw new EntityNotFoundException("E-mail inexistente email:" + email);

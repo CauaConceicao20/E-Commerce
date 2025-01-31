@@ -23,7 +23,7 @@ public class CartController {
 
     @PostMapping("/v1/addGameInCart")
     public ResponseEntity<Void> addGameInCart(@RequestBody @Valid AddGameToCartDto addGameToCartDto) {
-        cartService.addGameToTheCart(addGameToCartDto);
+        cartService.processGameAddition(addGameToCartDto);
         return ResponseEntity.ok().build();
     }
 

@@ -3,14 +3,12 @@ package com.compass.e_commerce.controller;
 import com.compass.e_commerce.config.security.SecurityConfigurations;
 import com.compass.e_commerce.config.security.TokenService;
 import com.compass.e_commerce.config.security.UserDetailsImpl;
-import com.compass.e_commerce.dto.user.UserAuthenticationDto;
-import com.compass.e_commerce.dto.user.UserDetailsDto;
-import com.compass.e_commerce.dto.user.UserLoginDetailsDto;
-import com.compass.e_commerce.dto.user.UserRegistrationDto;
+import com.compass.e_commerce.dto.user.*;
 import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.Cart;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.service.CartService;
+import com.compass.e_commerce.service.PasswordResetService;
 import com.compass.e_commerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,10 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -40,6 +35,7 @@ public class AuthenticationController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final PasswordResetService passwordResetService;
     private final TokenService tokenService;
     private final CartService cartService;
 
@@ -56,14 +52,18 @@ public class AuthenticationController {
         if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
         }
+
         var loginPassword = new UsernamePasswordAuthenticationToken(authenticationDto.login(), authenticationDto.password());
         var auth = this.authenticationManager.authenticate(loginPassword);
 
         var token = tokenService.generateToken((UserDetailsImpl) auth.getPrincipal());
+
         UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
         UserLoginDetailsDto userLoginDetailsDto = new UserLoginDetailsDto(token);
+
         userLoginDetailsDto.add(linkTo(methodOn(AuthenticationController.class).register(null, dummyUriBuilder)).withRel("register"));
         userLoginDetailsDto.add(linkTo(methodOn(AuthenticationController.class).registerAdmin(null, dummyUriBuilder)).withRel("register admin"));
+        userLoginDetailsDto.add(linkTo(methodOn(AuthenticationController.class).resetPassword("token", null)).withRel("resetPassword"));
         return ResponseEntity.ok(userLoginDetailsDto);
     }
 
@@ -84,6 +84,7 @@ public class AuthenticationController {
         UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).registerAdmin(null, dummyUriBuilder)).withRel("register admin"));
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).resetPassword("token", null)).withRel("resetPassword"));
         return ResponseEntity.created(uri).body(userDetailsDto);
     }
 
@@ -104,6 +105,21 @@ public class AuthenticationController {
         UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).register(null, dummyUriBuilder)).withRel("register"));
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).resetPassword("token", null)).withRel("resetPassword"));
         return ResponseEntity.created(uri).body(userDetailsDto);
     }
+
+
+    @PostMapping("/v1/requestResetPassword")
+    @Operation(summary = "Reset Password")
+    @ApiResponse(responseCode = "204", description = "Senha redefinida com sucesso")
+    @ApiResponse(responseCode = "404", description = "Dado invalido")
+    @ApiResponse(responseCode = "401", description = "token invalido")
+    @ApiResponse(responseCode = "500", description = "Erro no servidor")
+    public ResponseEntity<Void> resetPassword(@RequestParam("token") String token, @RequestBody @Valid ResetPasswordDto resetPasswordDto) {
+        passwordResetService.changePassword(resetPasswordDto.newPassword(), token);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

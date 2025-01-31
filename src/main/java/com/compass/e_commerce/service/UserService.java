@@ -1,6 +1,7 @@
 package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.config.security.UserDetailsImpl;
+import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
@@ -59,9 +60,9 @@ public class UserService implements UserServiceImp {
         user.setPassword(encryptedPassword);
         Set<Role> roles = new HashSet<>(roleRepository.findAll());
 
-        if(roles.isEmpty()) {
+        if (roles.isEmpty()) {
             throw new EntityNotFoundException("Role não encontrada");
-        }else {
+        } else {
             user.setRoles(roles);
             return userRepository.save(user);
         }
@@ -94,8 +95,13 @@ public class UserService implements UserServiceImp {
     }
 
     public User findByLogin(String login) {
-      return userRepository.findByLogin(login)
-               .orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
+        return userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
+    }
+
+    public User findByCpf(String cpf) {
+        return userRepository.findByCpf(cpf)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado cpf : " + cpf));
     }
 
     @Transactional
@@ -136,7 +142,7 @@ public class UserService implements UserServiceImp {
             }
             user.setEmail(userUpdateDto.email());
         }
-        if(userUpdateDto.password() != null) {
+        if (userUpdateDto.password() != null) {
             if (userUpdateDto.password().length() < 8 || userUpdateDto.password().length() > 14) {
                 throw new IllegalArgumentException("A senha deve ter entre 8 e 14 caracteres.");
             } else {
@@ -151,13 +157,28 @@ public class UserService implements UserServiceImp {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User não encontrado com o id: " + id));
 
-        if(!user.getActive()) {
+        if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
         }
 
-        if(!user.getOrders().isEmpty()) {
+        if (!user.getOrders().isEmpty()) {
             throw new DeletionNotAllowedException("O Usuario está associado a vendas.");
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    @CacheEvict(value = "roles", allEntries = true)
+    public Role createRole(Role role) {
+        return roleRepository.save(role);
+    }
+
+    @Cacheable("roles")
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
+    }
+
+    public Role convertDtoToEntity(RoleRegistrationDto roleRegistrationDto) {
+        return new Role(roleRegistrationDto);
     }
 }

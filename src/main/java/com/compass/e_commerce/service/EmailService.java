@@ -18,17 +18,17 @@ public class EmailService implements EmailServiceImp {
     private final PasswordResetService passwordResetService;
 
 
-    public void sendEmail(EmailDto destinationEmail, String emailSubject, String emailText) {
+    public void sendEmail(String destinationEmail, String emailSubject, String emailText) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(destinationEmail.email());
+        message.setTo(destinationEmail);
         message.setSubject(emailSubject);
         message.setText(emailText);
         mailSender.send(message);
     }
 
-    public void sendPasswordResetEmail(EmailDto destinationEmail, String emailSubject, String emailText) {
-        User user = validateEmail(destinationEmail.email());
-        String token = passwordResetService.generateTokenReset(destinationEmail.email());
+    public void sendPasswordResetEmail(String destinationEmail, String emailSubject, String emailText) {
+        User user = validateEmail(destinationEmail);
+        String token = passwordResetService.initiatePasswordReset(destinationEmail);
         sendEmail(destinationEmail, emailSubject, emailText + token);
 
     }

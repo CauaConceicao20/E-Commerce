@@ -45,4 +45,12 @@ public class OrderGames implements Serializable {
     public void setGame(Game game) {
         id.setGame(game);
     }
+
+   @Override
+    public String toString() {
+        return "\ngame: " + id.getGame().getName() +
+                "\ndescrição: " + id.getGame().getDescription() +
+                "\nquantidade: " + quantity +
+                "\npreço: " + id.getGame().getPrice() * quantity;
+    }
 }
