@@ -47,7 +47,7 @@ Bem-vindo à aplicação eCommerce! Este projeto está em desenvolvimento e visa
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Java 17**
+- **Java 19**
 - **Spring Boot**:
   - Spring Security
   - Spring Data JPA
