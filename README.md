@@ -66,7 +66,7 @@ Bem-vindo à aplicação eCommerce! Este projeto está em desenvolvimento e visa
 ### 1️⃣ Clonar o Repositório:
 
 
-git clone https://github.com/seu-usuario/seu-repositorio.git
+git clone https://github.com/CauaConceicao20/E-Commerce.git
 
 ### 2️⃣ Configurar o arquivo `application.properties`:
 
