@@ -1,6 +1,5 @@
 package com.compass.e_commerce.service;
 
-import com.compass.e_commerce.dto.order.OrderListDto;
 import com.compass.e_commerce.dto.order.OrderRegistrationDto;
 import com.compass.e_commerce.dto.order.OrderUpdateDto;
 import com.compass.e_commerce.dto.order.SwapGameDto;
@@ -14,7 +13,9 @@ import com.compass.e_commerce.model.enums.Stage;
 import com.compass.e_commerce.model.pk.OrderGamePK;
 import com.compass.e_commerce.repository.OrderGameRepository;
 import com.compass.e_commerce.repository.OrderRepository;
-import com.compass.e_commerce.service.interfaces.SaleServiceImp;
+import com.compass.e_commerce.service.interfaces.CrudService;
+import com.compass.e_commerce.service.interfaces.OptionalCrudMethods;
+import com.compass.e_commerce.service.interfaces.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,29 +27,28 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OrderService implements SaleServiceImp {
+public class OrderServiceImpl implements CrudService<Order>, OptionalCrudMethods<Order, OrderUpdateDto>, OrderService<Order, SwapGameDto, OrderRegistrationDto> {
 
-    private final UserService userService;
-    private final GameService gameService;
-    private final StockService stockService;
+    private final UserServiceImpl userServiceImpl;
+    private final GameServiceImpl gameServiceImpl;
+    private final AuthenticationServiceImpl authenticationServiceImpl;
+    private final StockServiceImpl stockServiceImpl;
     private final OrderRepository orderRepository;
     private final OrderGameRepository orderGameRepository;
 
+    @Override
     public Order convertDtoToEntity(OrderRegistrationDto dataDto) {
         Order order = new Order();
         double totalPrice = 0.0;
-        User user = userService.getById(userService.getAuthenticatedUserId());
+        User user = userServiceImpl.getById(authenticationServiceImpl.getAuthenticatedUserId());
         order.setUser(user);
         order.setCreationTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
-
-
         for (OrderRegistrationDto.OrderGameRegistrationDto orderGameDto : dataDto.games()) {
-            Game game = gameService.getById(orderGameDto.gameId());
+            Game game = gameServiceImpl.getById(orderGameDto.gameId());
 
             OrderGames orderGames = new OrderGames();
             orderGames.setId(new OrderGamePK(order, game));
@@ -64,29 +64,29 @@ public class OrderService implements SaleServiceImp {
         return order;
     }
 
+    @Override
     @CacheEvict(value = "orders", allEntries = true)
     public Order create(Order order) {
         return orderRepository.save(order);
     }
 
+    @Override
     @Cacheable("orders")
-    public List<OrderListDto> getAll() {
-        return orderRepository.findAll().stream()
-                .map(OrderListDto::new)
-                .collect(Collectors.toList());
+    public List<Order> getAll() {
+        return orderRepository.findAll();
     }
 
-    public Order getId(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order não encontrada id :" + id));
-        return order;
+    @Override
+    public Order getById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order com encontrada id :" + id));
     }
 
+    @Override
     @Transactional
     @CacheEvict(value = "orders", allEntries = true)
     public Order update(Long id, OrderUpdateDto orderUpdateDto) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Id da Order não existe"));
+        Order order = getById(id);
 
         if (order.getStage() == Stage.UNCONFIRMED) {
             for (OrderUpdateDto.OrderGameUpdateDto orderGameUpdateDto : orderUpdateDto.games()) {
@@ -98,7 +98,7 @@ public class OrderService implements SaleServiceImp {
                 if (existingOrderGames == null) {
                     throw new NoSuchElementException("Id do game não existe");
                 }
-                stockService.adjustStockBasedOnSaleQuantityChange(existingOrderGames, orderGameUpdateDto.quantity());
+                stockServiceImpl.adjustStockBasedOnSaleQuantityChange(existingOrderGames, orderGameUpdateDto.quantity());
                 existingOrderGames.setQuantity(orderGameUpdateDto.quantity());
             }
         } else {
@@ -111,6 +111,7 @@ public class OrderService implements SaleServiceImp {
         return orderRepository.save(order);
     }
 
+    @Override
     @Transactional
     @CacheEvict(value = "orders", allEntries = true)
     public Order confirmedOrder(Long id) {
@@ -123,7 +124,7 @@ public class OrderService implements SaleServiceImp {
         order.getOrderGames().forEach(orderGame -> {
             Game game = orderGame.getGame();
             int quantity = orderGame.getQuantity();
-            stockService.stockReduction(game, quantity);
+            stockServiceImpl.stockReduction(game, quantity);
         });
 
         order.setStage(Stage.CONFIRMED);
@@ -132,6 +133,7 @@ public class OrderService implements SaleServiceImp {
         return orderRepository.save(order);
     }
 
+    @Override
     @Transactional
     @CacheEvict(value = "orders", allEntries = true)
     public Order swapGame(SwapGameDto swapGameDto) {
@@ -167,7 +169,7 @@ public class OrderService implements SaleServiceImp {
             orderGameRepository.delete(existingOrderGames);
             orderRepository.flush();
 
-            Game newGame = gameService.getById(swapGame.newGameId());
+            Game newGame = gameServiceImpl.getById(swapGame.newGameId());
 
             if (swapGame.quantity() > newGame.getStock().getQuantity()) {
                 throw new IllegalArgumentException("Quantidade do novo jogo excede o estoque disponível.");
@@ -187,6 +189,7 @@ public class OrderService implements SaleServiceImp {
         return orderRepository.save(order);
     }
 
+    @Override
     @CacheEvict(value = "orders", allEntries = true)
     public void delete(Long id) {
         Order order = orderRepository.findById(id)

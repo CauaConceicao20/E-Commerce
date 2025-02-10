@@ -6,7 +6,9 @@ import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException
 import com.compass.e_commerce.exception.personalized.GameIsInactiveException;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.repository.GameRepository;
-import com.compass.e_commerce.service.interfaces.GameServiceImp;
+import com.compass.e_commerce.service.interfaces.CrudService;
+import com.compass.e_commerce.service.interfaces.GameService;
+import com.compass.e_commerce.service.interfaces.OptionalCrudMethods;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,20 +21,23 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-public class GameService implements GameServiceImp {
+public class GameServiceImpl implements CrudService<Game>, OptionalCrudMethods<Game, GameUpdateDto>, GameService<Game, GameRegistrationDto> {
 
     private final GameRepository gameRepository;
 
+    @Override
     @Transactional
     @CacheEvict(value = "games", allEntries = true)
     public Game create(Game game) {
         return gameRepository.save(game);
     }
 
+    @Override
     public Game convertDtoToEntity(GameRegistrationDto dataDto) {
         return new Game(dataDto);
     }
 
+    @Override
     @Cacheable("games")
     public List<Game> getAll() {
         return gameRepository.findByActiveTrue();
@@ -42,20 +47,19 @@ public class GameService implements GameServiceImp {
        return gameRepository.findAllById(ids);
     }
 
+    @Override
     @Cacheable("games")
     public Game getById(Long id) {
-        Game game = gameRepository.findById(id)
+        return gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Game não encontrado id: " + id));
-        return game;
     }
 
+    @Override
     @CacheEvict(value = "games", allEntries = true)
     public Game update(Long id, GameUpdateDto gameUpdateDto) {
-        Game game = gameRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Game não encontrado id: " + id));
+        Game game = getById(id);
         if (!game.getActive()) {
             throw new GameIsInactiveException("Game está inativado");
-
         }
         if (gameUpdateDto.name() != null) {
             game.setName(gameUpdateDto.name());
@@ -72,11 +76,11 @@ public class GameService implements GameServiceImp {
         if (gameUpdateDto.price() > 0) {
             game.setPrice(gameUpdateDto.price());
         }
-        gameRepository.save(game);
 
-        return game;
+        return gameRepository.save(game);
 }
 
+    @Override
     @CacheEvict(value = "games", allEntries = true)
     public void delete(Long id) {
         Game game = gameRepository.findById(id)

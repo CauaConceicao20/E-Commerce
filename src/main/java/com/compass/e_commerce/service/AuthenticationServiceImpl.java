@@ -3,8 +3,9 @@ package com.compass.e_commerce.service;
 import com.compass.e_commerce.config.security.UserDetailsImpl;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.repository.UserRepository;
-import com.compass.e_commerce.service.interfaces.AuthorizationServiceImp;
+import com.compass.e_commerce.service.interfaces.AuthorizationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService implements UserDetailsService, AuthorizationServiceImp {
+public class AuthenticationServiceImpl implements UserDetailsService, AuthorizationService<UserDetails> {
 
     private final UserRepository userRepository;
 
@@ -21,5 +22,17 @@ public class AuthenticationService implements UserDetailsService, AuthorizationS
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o login: " + login));
         return new UserDetailsImpl(user);
+    }
+
+    @Override
+    public Long getAuthenticatedUserId() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            var userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            if (userDetails != null) {
+                return userDetails.getId();
+            }
+        }
+        throw new UsernameNotFoundException("User não encontrado");
     }
 }

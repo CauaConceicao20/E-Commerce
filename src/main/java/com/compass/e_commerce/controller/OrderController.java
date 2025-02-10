@@ -1,11 +1,10 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.config.security.SecurityConfigurations;
-import com.compass.e_commerce.dto.buy.BuyItemsDto;
 import com.compass.e_commerce.dto.order.*;
 import com.compass.e_commerce.model.Order;
-import com.compass.e_commerce.service.OrderService;
-import com.compass.e_commerce.service.PurchasingService;
+import com.compass.e_commerce.service.OrderServiceImpl;
+import com.compass.e_commerce.service.PurchasingServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,8 +27,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class OrderController {
 
-    private final OrderService orderService;
-    private final PurchasingService purchasingService;
+    private final OrderServiceImpl orderServiceImpl;
+    private final PurchasingServiceImpl purchasingService;
 
 
     @PostMapping("/v1/createRole")
@@ -39,8 +38,8 @@ public class OrderController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<OrderDetailsDto> create(@RequestBody @Valid OrderRegistrationDto orderRegistrationDto, UriComponentsBuilder uriBuilder) {
-        Order order = orderService.convertDtoToEntity(orderRegistrationDto);
-        orderService.create(order);
+        Order order = orderServiceImpl.convertDtoToEntity(orderRegistrationDto);
+        orderServiceImpl.create(order);
         OrderDetailsDto orderDetailsDto = new OrderDetailsDto(order);
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).getById(order.getId())).withSelfRel());
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).confirmSale(order.getId())).withRel("confirmSale"));
@@ -58,7 +57,7 @@ public class OrderController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<CollectionModel<OrderListDto>> list() {
-        var saleList = orderService.getAll();
+        var saleList = orderServiceImpl.getAll().stream().map(OrderListDto::new).toList();
         for(OrderListDto sale : saleList) {
             sale.add(linkTo(methodOn(OrderController.class).getById(sale.getId())).withSelfRel());
             sale.add(linkTo(methodOn(OrderController.class).getById(sale.getId())).withRel("update"));
@@ -76,7 +75,7 @@ public class OrderController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<OrderDetailsDto> getById(@PathVariable Long id) {
-        var sale = orderService.getId(id);
+        var sale = orderServiceImpl.getById(id);
         OrderDetailsDto orderDetailsDto = new OrderDetailsDto(sale);
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).create(null, null)).withRel("createRole"));
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).updateSale(sale.getId(), null)).withRel("update"));
@@ -92,7 +91,7 @@ public class OrderController {
     @ApiResponse(responseCode = "404", description = "Order não encontrada")
     @ApiResponse(responseCode = "409", description = "Essa venda ja foi confirmada")
     public ResponseEntity<OrderDetailsDto> confirmSale(@PathVariable Long id) {
-        Order order = orderService.confirmedOrder(id);
+        Order order = orderServiceImpl.confirmedOrder(id);
         OrderDetailsDto orderDetailsDto = new OrderDetailsDto(order);
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).getById(order.getId())).withSelfRel());
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).create(null,null)).withRel("createRole"));
@@ -116,7 +115,7 @@ public class OrderController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<OrderDetailsDto> updateSale(@PathVariable Long id, @RequestBody @Valid OrderUpdateDto orderUpdateDto) {
-        var sale = orderService.update(id, orderUpdateDto);
+        var sale = orderServiceImpl.update(id, orderUpdateDto);
         OrderDetailsDto orderDetailsDto = new OrderDetailsDto(sale);
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).getById(sale.getId())).withSelfRel());
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).create(null, null)).withRel("createRole"));
@@ -135,7 +134,7 @@ public class OrderController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<OrderDetailsDto> swapGame(@RequestBody @Valid SwapGameDto swapGameDto) {
-        Order order = orderService.swapGame(swapGameDto);
+        Order order = orderServiceImpl.swapGame(swapGameDto);
         OrderDetailsDto orderDetailsDto = new OrderDetailsDto(order);
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).getById(order.getId())).withSelfRel());
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).create(null, null)).withRel("createRole"));
@@ -154,7 +153,7 @@ public class OrderController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        orderService.delete(id);
+        orderServiceImpl.delete(id);
 
         return ResponseEntity.noContent().build();
     }

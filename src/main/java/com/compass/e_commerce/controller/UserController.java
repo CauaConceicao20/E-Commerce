@@ -1,15 +1,11 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.config.security.SecurityConfigurations;
-import com.compass.e_commerce.dto.role.RoleDetailsDto;
-import com.compass.e_commerce.dto.role.RoleListDto;
-import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.dto.user.UserDetailsDto;
 import com.compass.e_commerce.dto.user.UserListDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
-import com.compass.e_commerce.model.Role;
 import com.compass.e_commerce.model.User;
-import com.compass.e_commerce.service.UserService;
+import com.compass.e_commerce.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,7 +14,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +29,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @GetMapping("/v1/getAll")
     @Operation(summary = "List Users")
@@ -42,10 +37,10 @@ public class UserController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<List<UserListDto>> listUsers() {
-        var userList = userService.getAll().stream().map(UserListDto::new).toList();
+        var userList = userServiceImpl.getAll().stream().map(UserListDto::new).toList();
         for(UserListDto users : userList) {
             users.add(linkTo(methodOn(UserController.class).updateMyProfile(null)).withRel("update my profile"));
-            users.add(linkTo(methodOn(UserController.class).updateByAdmin(users.getId(), null)).withRel("update admin"));
+            users.add(linkTo(methodOn(UserController.class).update(null, null)).withRel("update admin"));
             users.add(linkTo(methodOn(UserController.class).activeUser(users.getId())).withRel("active user"));
             users.add(linkTo(methodOn(UserController.class).inactiveUser(users.getId())).withRel("inactive user"));
             users.add(linkTo(methodOn(UserController.class).deleteUser(users.getId())).withRel("delete"));
@@ -53,15 +48,15 @@ public class UserController {
         return ResponseEntity.ok().body(userList);
     }
 
-    @PutMapping("/v1/updateAdmin/{id}")
-    @Operation(summary = "Update Admin")
+    @PutMapping("/v1/update")
+    @Operation(summary = "Update")
     @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
     @ApiResponse(responseCode = "400", description = "Dado incorretos")
     @ApiResponse(responseCode = "409", description = "usuario está inativado")
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<UserDetailsDto> updateByAdmin(@PathVariable long id , @RequestBody @Valid UserUpdateDto userUpdateDto) {
-        User user =  userService.updateByAdmin(id,userUpdateDto);
+    public ResponseEntity<UserDetailsDto> update(@RequestParam(required = false) Long id, @RequestBody @Valid UserUpdateDto userUpdateDto) {
+        User user =  userServiceImpl.update(id, userUpdateDto);
         UserDetailsDto userDetailsDto = new UserDetailsDto(user);
         userDetailsDto.add(linkTo(methodOn(UserController.class).updateMyProfile(null)).withRel("update my profile"));
         userDetailsDto.add(linkTo(methodOn(UserController.class).activeUser(user.getId())).withRel("active user"));
@@ -78,9 +73,9 @@ public class UserController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<UserDetailsDto> updateMyProfile(@RequestBody @Valid UserUpdateDto userUpdateDto) {
-        User user =  userService.updateMyProfile(userUpdateDto);
+        User user =  userServiceImpl.updateMyProfile(userUpdateDto);
         UserDetailsDto userDetailsDto = new UserDetailsDto(user);
-        userDetailsDto.add(linkTo(methodOn(UserController.class).updateByAdmin(user.getId(), null)).withRel("update admin"));
+        userDetailsDto.add(linkTo(methodOn(UserController.class).update(null, null)).withRel("update admin"));
         userDetailsDto.add(linkTo(methodOn(UserController.class).activeUser(user.getId())).withRel("active user"));
         userDetailsDto.add(linkTo(methodOn(UserController.class).inactiveUser(user.getId())).withRel("inactive user"));
         userDetailsDto.add(linkTo(methodOn(UserController.class).deleteUser(user.getId())).withRel("delete"));
@@ -96,7 +91,7 @@ public class UserController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> activeUser(@PathVariable Long id) {
-        User user = userService.getById(id);
+        User user = userServiceImpl.getById(id);
         user.isActive();
 
         return ResponseEntity.noContent().build();
@@ -111,7 +106,7 @@ public class UserController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> inactiveUser(@PathVariable Long id) {
-        User user = userService.getById(id);
+        User user = userServiceImpl.getById(id);
         user.isInactive();
 
         return ResponseEntity.noContent().build();
@@ -126,33 +121,8 @@ public class UserController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.delete(id);
+        userServiceImpl.delete(id);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/v1/createRole")
-    @Operation(summary = "Create Role")
-    @ApiResponse(responseCode = "201", description = "Criação de Role bem sucedida")
-    @ApiResponse(responseCode = "400", description = "Dados invalidos")
-    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<RoleDetailsDto> createRole(@RequestBody @Valid RoleRegistrationDto roleRegistrationDto) {
-       Role role = userService.createRole(userService.convertDtoToEntity(roleRegistrationDto));
-
-        RoleDetailsDto roleDetailsDto = new RoleDetailsDto(role);
-        roleDetailsDto.add(linkTo(methodOn(UserController.class)).withRel("all roles"));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(roleDetailsDto);
-    }
-    @GetMapping("/v1/getAllRoles")
-    @Operation(summary = "List Roles")
-    @ApiResponse(responseCode = "200", description = "Listagem bem sucedida")
-    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<List<RoleListDto>> list() {
-        var roles = userService.getAllRoles().stream().map(RoleListDto::new).toList();
-        for(RoleListDto role : roles) {
-            role.add(linkTo(methodOn(UserController.class).createRole(null)).withRel("createRole"));
-        }
-        return ResponseEntity.ok().body(roles);
     }
 }

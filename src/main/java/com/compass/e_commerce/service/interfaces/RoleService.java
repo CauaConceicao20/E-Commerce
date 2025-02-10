@@ -4,8 +4,10 @@ import com.compass.e_commerce.model.Role;
 
 import java.util.List;
 
-public interface RoleServiceImp {
-    Role create(Role role);
+public interface RoleService <T, D> {
+    T create(T entity);
 
-    List<Role> getAll();
+    List<T> getAll();
+
+    T convertDtoToEntity(D dto);
 }

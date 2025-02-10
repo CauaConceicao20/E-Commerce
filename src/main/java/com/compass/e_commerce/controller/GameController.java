@@ -6,7 +6,7 @@ import com.compass.e_commerce.dto.game.GameListDto;
 import com.compass.e_commerce.dto.game.GameRegistrationDto;
 import com.compass.e_commerce.dto.game.GameUpdateDto;
 import com.compass.e_commerce.model.Game;
-import com.compass.e_commerce.service.GameService;
+import com.compass.e_commerce.service.GameServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,7 +30,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class GameController {
 
-    private final GameService gameService;
+    private final GameServiceImpl gameServiceImpl;
 
     @PostMapping("/v1/createRole")
     @Operation(summary = "Create Game")
@@ -39,8 +39,8 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<GameDetailsDto> createRequest(@RequestBody @Valid GameRegistrationDto gameDto, UriComponentsBuilder uriBuilder) {
-        Game game = gameService.convertDtoToEntity(gameDto);
-        gameService.create(game);
+        Game game = gameServiceImpl.convertDtoToEntity(gameDto);
+        gameServiceImpl.create(game);
         GameDetailsDto gameDetailsDto = new GameDetailsDto(game);
         gameDetailsDto.add(linkTo(methodOn(GameController.class).getById(game.getId())).withSelfRel());
         gameDetailsDto.add(linkTo(methodOn(GameController.class).update(game.getId(), null)).withRel("update"));
@@ -58,7 +58,7 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<CollectionModel<GameListDto>> listAll() {
-        var listGame = gameService.getAll().stream().map(GameListDto::new).toList();
+        var listGame = gameServiceImpl.getAll().stream().map(GameListDto::new).toList();
         for(GameListDto game : listGame) {
             game.add(linkTo(methodOn(GameController.class).getById(game.getId())).withSelfRel());
             game.add(linkTo(methodOn(GameController.class).update(game.getId(), null)).withRel("update"));
@@ -72,7 +72,7 @@ public class GameController {
 
     @GetMapping("/v1/getGameId/{id}")
     public ResponseEntity<GameDetailsDto> getById(@PathVariable Long id) {
-        var game = gameService.getById(id);
+        var game = gameServiceImpl.getById(id);
         GameDetailsDto gameDetailsDto = new GameDetailsDto(game);
         gameDetailsDto.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("createRole"));
         gameDetailsDto.add(linkTo(methodOn(GameController.class).update(game.getId(), null)).withRel("update"));
@@ -91,7 +91,7 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<GameDetailsDto> update(@PathVariable Long id, @RequestBody @Valid GameUpdateDto gameUpdateDto) {
-        Game game = gameService.update(id, gameUpdateDto);
+        Game game = gameServiceImpl.update(id, gameUpdateDto);
         GameDetailsDto gameDetailsDto = new GameDetailsDto(game);
         gameDetailsDto.add(linkTo(methodOn(GameController.class).getById(id)).withSelfRel());
         gameDetailsDto.add(linkTo(methodOn(GameController.class).createRequest(null, null)).withRel("createRole"));
@@ -110,7 +110,7 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> activeGame(@PathVariable Long id) {
-        Game game = gameService.getById(id);
+        Game game = gameServiceImpl.getById(id);
         game.isActive();
 
         return ResponseEntity.noContent().build();
@@ -125,7 +125,7 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> inactiveGame(@PathVariable Long id) {
-        Game game = gameService.getById(id);
+        Game game = gameServiceImpl.getById(id);
         game.isInactive();
 
         return ResponseEntity.noContent().build();
@@ -140,7 +140,7 @@ public class GameController {
     @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        gameService.delete(id);
+        gameServiceImpl.delete(id);
 
         return ResponseEntity.noContent().build();
     }

@@ -1,7 +1,7 @@
 package com.compass.e_commerce.config.security;
 
 import com.compass.e_commerce.repository.UserRepository;
-import com.compass.e_commerce.service.CacheService;
+import com.compass.e_commerce.service.CacheServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
-    private final CacheService cacheService;
+    private final CacheServiceImpl cacheServiceImpl;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

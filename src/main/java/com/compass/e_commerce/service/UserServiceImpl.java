@@ -1,7 +1,5 @@
 package com.compass.e_commerce.service;
 
-import com.compass.e_commerce.config.security.UserDetailsImpl;
-import com.compass.e_commerce.dto.role.RoleRegistrationDto;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
@@ -11,14 +9,14 @@ import com.compass.e_commerce.model.enums.RoleNameEnum;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.repository.RoleRepository;
 import com.compass.e_commerce.repository.UserRepository;
-import com.compass.e_commerce.service.interfaces.UserServiceImp;
+import com.compass.e_commerce.service.interfaces.CrudService;
+import com.compass.e_commerce.service.interfaces.OptionalCrudMethods;
+import com.compass.e_commerce.service.interfaces.UserService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,34 +26,44 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserServiceImp {
+public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<User, UserUpdateDto>, UserService<User, UserUpdateDto>
+{
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationServiceImpl authenticationServiceImpl;
 
-    String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-    Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     @Transactional
     public User convertDtoToEntity(UserRegistrationDto userRegistrationDto) {
         return new User(userRegistrationDto);
     }
 
+    @Override
+    public User create(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
-    public User registerUser(User user) {
+    public void registerUser(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
+
         Role role = roleRepository.findByName(RoleNameEnum.USER)
                 .orElseThrow(() -> new EntityNotFoundException("Role não encontrada"));
 
         user.setRoles(Set.of(role));
-        return userRepository.save(user);
+        create(user);
     }
 
+    @Override
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
-    public User registerUserAdmin(User user) {
+    public void registerUserAdmin(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         Set<Role> roles = new HashSet<>(roleRepository.findAll());
@@ -64,53 +72,72 @@ public class UserService implements UserServiceImp {
             throw new EntityNotFoundException("Role não encontrada");
         } else {
             user.setRoles(roles);
-            return userRepository.save(user);
+            userRepository.save(user);
         }
     }
 
+    @Override
+    @Cacheable("users")
     public User getById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User não encontrado id: " + id));
     }
 
-    public Long getAuthenticatedUserId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-            var userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            if (userDetails != null) {
-                return userDetails.getId();
-            }
-        }
-        throw new UsernameNotFoundException("User não encontrado");
-    }
-
+    @Override
     @Cacheable("users")
     public List<User> getAll() {
         return userRepository.findByActiveTrue();
     }
 
+    @Override
+    @Cacheable("users")
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User não encontrado login: " + email));
     }
 
+    @Override
+    @Cacheable("users")
     public User findByLogin(String login) {
         return userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
     }
 
+    @Override
+    @Cacheable("users")
     public User findByCpf(String cpf) {
         return userRepository.findByCpf(cpf)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado cpf : " + cpf));
     }
 
+    @Override
     @Transactional
-    public User changePassword(User user, String newPassword) {
+    public void changePassword(User user, String newPassword) {
         user.setPassword(newPassword);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
+    @Override
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
+    public User update(Long id, UserUpdateDto userUpdateDto) {
+        User authenticadeUser = getById(authenticationServiceImpl.getAuthenticatedUserId());
+        boolean isAdmin = authenticadeUser.getRoles().stream()
+                .anyMatch(role -> role.getName() == RoleNameEnum.ADMIN);
+
+        if (id == null && authenticadeUser.getActive() && isAdmin) {
+            logicUpdate(authenticadeUser, userUpdateDto);
+            return authenticadeUser;
+        } else if (id != null) {
+            User user = getById(id);
+            logicUpdate(user, userUpdateDto);
+            return user;
+        } else {
+            throw new IllegalArgumentException("ID não fornecido e usuário não tem permissão para atualizar.");
+        }
+    }
+
+    /*@Transactional
     @CacheEvict(value = "users", allEntries = true)
     public User updateByAdmin(Long id, UserUpdateDto userUpdateDto) {
         User foundUser = getById(id);
@@ -119,16 +146,19 @@ public class UserService implements UserServiceImp {
 
         return foundUser;
     }
+     */
 
+    @Override
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
     public User updateMyProfile(UserUpdateDto userUpdateDto) {
-        User user = getById(getAuthenticatedUserId());
+        User user = getById(authenticationServiceImpl.getAuthenticatedUserId());
         logicUpdate(user, userUpdateDto);
         userRepository.save(user);
         return user;
     }
 
+    @Override
     public void logicUpdate(User user, UserUpdateDto userUpdateDto) {
         if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
@@ -152,6 +182,7 @@ public class UserService implements UserServiceImp {
         }
     }
 
+    @Override
     @CacheEvict(value = "users", allEntries = true)
     public void delete(Long id) {
         User user = userRepository.findById(id)
@@ -165,20 +196,5 @@ public class UserService implements UserServiceImp {
             throw new DeletionNotAllowedException("O Usuario está associado a vendas.");
         }
         userRepository.deleteById(id);
-    }
-
-    @Transactional
-    @CacheEvict(value = "roles", allEntries = true)
-    public Role createRole(Role role) {
-        return roleRepository.save(role);
-    }
-
-    @Cacheable("roles")
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
-    }
-
-    public Role convertDtoToEntity(RoleRegistrationDto roleRegistrationDto) {
-        return new Role(roleRegistrationDto);
     }
 }

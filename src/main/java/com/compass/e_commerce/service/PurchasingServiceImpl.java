@@ -7,14 +7,13 @@ import com.compass.e_commerce.model.*;
 import com.compass.e_commerce.model.enums.PaymentMethod;
 import com.compass.e_commerce.model.enums.Stage;
 import com.compass.e_commerce.model.pk.OrderGamePK;
-import com.compass.e_commerce.repository.OrderGameRepository;
 import com.compass.e_commerce.repository.OrderRepository;
 import com.compass.e_commerce.repository.SaleRepository;
+import com.compass.e_commerce.service.interfaces.PurchasingService;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONPointerException;
@@ -30,25 +29,27 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PurchasingService {
+public class PurchasingServiceImpl implements PurchasingService<BuyItemsDto> {
 
-    private final UserService userService;
-    private final StockService stockService;
-    private final OrderService orderService;
+    private final UserServiceImpl userServiceImpl;
+    private final AuthenticationServiceImpl authenticationServiceImpl;
+    private final StockServiceImpl stockServiceImpl;
+    private final OrderServiceImpl orderServiceImpl;
     private final ChargeServiceClient chargeServiceClient;
-    private final EmailService emailService;
+    private final EmailServiceImpl emailServiceImpl;
     private final OrderRepository orderRepository;
-    private final CartService cartService;
-    private final GameService gameService;
+    private final CartServiceImpl cartServiceImpl;
+    private final GameServiceImpl gameServiceImpl;
     private final SaleRepository saleRepository;
 
+    @Override
     @Transactional
     public void buy(BuyItemsDto buyItemsDto) {
-        User user = userService.getById(userService.getAuthenticatedUserId());
+        User user = userServiceImpl.getById(authenticationServiceImpl.getAuthenticatedUserId());
         Order order = new Order(user, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), Stage.ACTIVE, PaymentMethod.PIX);
         double price = 0.0;
 
-        Map<Long, Game> gamesMap = gameService.findAllById(
+        Map<Long, Game> gamesMap = gameServiceImpl.findAllById(
                 buyItemsDto.purchaseItems().stream().map(BuyItemsDto.PurchaseItems::id).collect(Collectors.toList())
         ).stream().collect(Collectors.toMap(Game::getId, game -> game));
 
@@ -68,8 +69,8 @@ public class PurchasingService {
 
             price += game.getPrice() * items.quantity();
 
-            if (cartService.checkIfTheGameIsInTheCart(items.id())) {
-                cartService.removeGameFromCart(items.id());
+            if (cartServiceImpl.checkIfTheGameIsInTheCart(items.id())) {
+                cartServiceImpl.removeGameFromCart(items.id());
             }
         }
         order.setTotalPrice(price);
@@ -80,12 +81,13 @@ public class PurchasingService {
             );
             String jsonValueTxId = returnDataOfJson(charge, "txid", null, null);
             order.setQrCodeId(jsonValueTxId);
-            orderService.create(order);
+            orderServiceImpl.create(order);
         } catch (FeignException | DataIntegrityViolationException | IllegalArgumentException | JpaSystemException e) {
             System.out.println("Ocorreu um error" + e);
         }
     }
 
+    @Override
     @KafkaListener(topics = "payment-confirmation", groupId = "payment-confirmation-group")
     @Transactional
     public void purchaseConfirmation(String message) {
@@ -98,7 +100,7 @@ public class PurchasingService {
 
         Order order = null;
 
-        User user = userService.findByCpf(jsonValueCpf);
+        User user = userServiceImpl.findByCpf(jsonValueCpf);
 
         for (Order orderOfUser : user.getOrders()) {
             if (orderOfUser.getQrCodeId().equals(jsonValueTxId)) order = orderOfUser;
@@ -114,8 +116,8 @@ public class PurchasingService {
         orderRepository.save(order);
         saleRepository.save(sale);
 
-        order.getOrderGames().stream().forEach(orderGames -> stockService.stockReduction(orderGames.getGame(), orderGames.getQuantity()));
-        emailService.sendEmail(user.getEmail(), "Confirmação de Pagamento", "Olá " + user.getLogin()
+        order.getOrderGames().stream().forEach(orderGames -> stockServiceImpl.stockReduction(orderGames.getGame(), orderGames.getQuantity()));
+        emailServiceImpl.sendEmail(user.getEmail(), "Confirmação de Pagamento", "Olá " + user.getLogin()
                 + "\nRecebemos o Pagamento referente ao seu pedido" + "\nItems do pedido: " + order.getOrderGames() + "\nValor Total: " + order.getTotalPrice());
     }
 

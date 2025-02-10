@@ -3,40 +3,70 @@ package com.compass.e_commerce.service;
 import com.compass.e_commerce.dto.cart.AddGameToCartDto;
 import com.compass.e_commerce.dto.cart.CartGameItemListDto;
 import com.compass.e_commerce.dto.cart.CartGameItemResponseDto;
+import com.compass.e_commerce.dto.cart.CartUpdateDto;
 import com.compass.e_commerce.model.Cart;
 import com.compass.e_commerce.model.CartGameItem;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.model.pk.CartGameItemPK;
 import com.compass.e_commerce.repository.CartRepository;
-import com.compass.e_commerce.service.interfaces.CartServiceImp;
+import com.compass.e_commerce.service.interfaces.CartService;
+import com.compass.e_commerce.service.interfaces.CrudService;
+import com.compass.e_commerce.service.interfaces.OptionalCrudMethods;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class CartService implements CartServiceImp {
+public class CartServiceImpl implements CrudService<Cart>, OptionalCrudMethods<Cart, CartUpdateDto>,
+        CartService<Cart, AddGameToCartDto, CartGameItemResponseDto> {
 
     private final CartRepository cartRepository;
-    private final GameService gameService;
-    private final UserService userService;
+    private final GameServiceImpl gameServiceImpl;
+    private final UserServiceImpl userServiceImpl;
+    private final AuthenticationServiceImpl authenticationServiceImpl;
 
+    @Override
     @Transactional
     public Cart create(Cart cart) {
         return cartRepository.save(cart);
     }
 
+    @Override
+    public List<Cart> getAll() {
+        return cartRepository.findAll();
+    }
+
+    @Override
+    public Cart getById(Long id) {
+        return cartRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Não existe um carrinho com id: " + id));
+    }
+
+    @Override
+    @Transactional
+    public Cart update(Long id, CartUpdateDto cartUpdateDto) {
+        Cart cart = getById(id);
+
+        if (cartUpdateDto.quantityOfItems() > 0) {
+            cart.setQuantityOfItems(cartUpdateDto.quantityOfItems());
+        }
+        if (cart.getTotalPrice() > 0) {
+            cart.setTotalPrice(cartUpdateDto.totalPrice());
+        }
+        return cartRepository.save(cart);
+    }
+
+    @Override
     @Transactional
     public void addGameToTheCart(Long id, int quantity) {
-        User authenticatedUser = userService.getById(userService.getAuthenticatedUserId());
+        User authenticatedUser = userServiceImpl.getById(authenticationServiceImpl.getAuthenticatedUserId());
         Cart authenticatedUserCart = authenticatedUser.getCart();
-        Game game = gameService.getById(id);
+        Game game = gameServiceImpl.getById(id);
         List<CartGameItem> cartGameRelatedToCart = authenticatedUserCart.getCartGameItem();
 
         boolean existingGame = false;
@@ -61,12 +91,14 @@ public class CartService implements CartServiceImp {
         cartRepository.save(authenticatedUserCart);
     }
 
+    @Override
     public void processGameAddition(AddGameToCartDto addGameToCartDto) {
         addGameToTheCart(addGameToCartDto.gameId(), addGameToCartDto.quantityGameInCart());
     }
 
+    @Override
     public CartGameItemResponseDto listGamesInTheCart() {
-        User authenticatedUser = userService.getById(userService.getAuthenticatedUserId());
+        User authenticatedUser = userServiceImpl.getById(authenticationServiceImpl.getAuthenticatedUserId());
         Cart authenticatedUserCart = authenticatedUser.getCart();
 
         List<CartGameItemListDto> items = authenticatedUserCart.getCartGameItem().stream().map(CartGameItemListDto::new).toList();
@@ -74,9 +106,10 @@ public class CartService implements CartServiceImp {
         return new CartGameItemResponseDto(items, authenticatedUserCart.getQuantityOfItems(), authenticatedUserCart.getTotalPrice());
     }
 
+    @Override
     public boolean checkIfTheGameIsInTheCart(Long id) {
-        User authenticatedUser = userService.getById(userService.getAuthenticatedUserId());
-        Game game = gameService.getById(id);
+        User authenticatedUser = userServiceImpl.getById(authenticationServiceImpl.getAuthenticatedUserId());
+        Game game = gameServiceImpl.getById(id);
         List<CartGameItem> gamesInCart = authenticatedUser.getCart().getCartGameItem();
 
         for (CartGameItem gamesOfCart : gamesInCart) {
@@ -86,9 +119,10 @@ public class CartService implements CartServiceImp {
         return false;
     }
 
+    @Override
     @Transactional
     public void removeGameFromCart(Long id) {
-        User authenticatedUser = userService.getById(userService.getAuthenticatedUserId());
+        User authenticatedUser = userServiceImpl.getById(authenticationServiceImpl.getAuthenticatedUserId());
         Cart authenticatedUserCart = authenticatedUser.getCart();
         boolean cartGameItemRelationshipExists = false;
 

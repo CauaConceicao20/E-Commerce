@@ -7,9 +7,9 @@ import com.compass.e_commerce.dto.user.*;
 import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.Cart;
 import com.compass.e_commerce.model.User;
-import com.compass.e_commerce.service.CartService;
-import com.compass.e_commerce.service.PasswordResetService;
-import com.compass.e_commerce.service.UserService;
+import com.compass.e_commerce.service.CartServiceImpl;
+import com.compass.e_commerce.service.PasswordResetServiceImpl;
+import com.compass.e_commerce.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,11 +33,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class AuthenticationController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
     private final AuthenticationManager authenticationManager;
-    private final PasswordResetService passwordResetService;
+    private final PasswordResetServiceImpl passwordResetServiceImpl;
     private final TokenService tokenService;
-    private final CartService cartService;
+    private final CartServiceImpl cartServiceImpl;
 
     @PostMapping("/v1/login")
     @Operation(summary = "Login")
@@ -47,7 +47,7 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     @Transactional
     public ResponseEntity<UserLoginDetailsDto> login(@RequestBody @Valid UserAuthenticationDto authenticationDto) {
-        var user = userService.findByLogin(authenticationDto.login());
+        var user = userServiceImpl.findByLogin(authenticationDto.login());
 
         if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
@@ -73,11 +73,11 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     @Transactional
     public ResponseEntity<UserDetailsDto> register(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
-        User user = userService.convertDtoToEntity(userRegistrationDto);
+        User user = userServiceImpl.convertDtoToEntity(userRegistrationDto);
         Cart cart = new Cart();
-        cartService.create(cart);
+        cartServiceImpl.create(cart);
         user.setCart(cart);
-        userService.registerUser(user);
+        userServiceImpl.registerUser(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
         UserDetailsDto userDetailsDto = new UserDetailsDto(user);
@@ -94,11 +94,11 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     @Transactional
     public ResponseEntity<UserDetailsDto> registerAdmin(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
-        User user = userService.convertDtoToEntity(userRegistrationDto);
+        User user = userServiceImpl.convertDtoToEntity(userRegistrationDto);
         Cart cart = new Cart();
-        cartService.create(cart);
+        cartServiceImpl.create(cart);
         user.setCart(cart);
-        userService.registerUserAdmin(user);
+        userServiceImpl.registerUserAdmin(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
         UserDetailsDto userDetailsDto = new UserDetailsDto(user);
@@ -117,7 +117,7 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "401", description = "token invalido")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<Void> resetPassword(@RequestParam("token") String token, @RequestBody @Valid ResetPasswordDto resetPasswordDto) {
-        passwordResetService.changePassword(resetPasswordDto.newPassword(), token);
+        passwordResetServiceImpl.processPasswordReset(resetPasswordDto.newPassword(), token);
 
         return ResponseEntity.noContent().build();
     }

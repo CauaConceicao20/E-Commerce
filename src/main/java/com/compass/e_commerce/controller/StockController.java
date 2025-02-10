@@ -3,8 +3,8 @@ package com.compass.e_commerce.controller;
 import com.compass.e_commerce.config.security.SecurityConfigurations;
 import com.compass.e_commerce.dto.stock.StockDto;
 import com.compass.e_commerce.model.Game;
-import com.compass.e_commerce.service.GameService;
-import com.compass.e_commerce.service.StockService;
+import com.compass.e_commerce.service.GameServiceImpl;
+import com.compass.e_commerce.service.StockServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class StockController {
 
-    private final StockService stockService;
-    private final GameService gameService;
+    private final StockServiceImpl stockServiceImpl;
+    private final GameServiceImpl gameServiceImpl;
 
     @PutMapping("/v1/reduction/{id}")
     @CacheEvict(value = "games", allEntries = true)
@@ -33,8 +33,8 @@ public class StockController {
     @ApiResponse(responseCode = "404", description = "Game não existe")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<Void> reductionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
-       Game game =  gameService.getById(id);
-       stockService.stockReduction(game, stockDto.quantity());
+       Game game =  gameServiceImpl.getById(id);
+       stockServiceImpl.stockReduction(game, stockDto.quantity());
 
 
         return ResponseEntity.noContent().build();
@@ -48,8 +48,8 @@ public class StockController {
     @ApiResponse(responseCode = "404", description = "Game não existe")
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     public ResponseEntity<Void> repositionStock(@PathVariable Long id, @RequestBody @Valid StockDto stockDto) {
-        Game game =  gameService.getById(id);
-        stockService.stockReplenishment(game, stockDto.quantity());
+        Game game =  gameServiceImpl.getById(id);
+        stockServiceImpl.stockReplenishment(game, stockDto.quantity());
 
         return ResponseEntity.noContent().build();
     }

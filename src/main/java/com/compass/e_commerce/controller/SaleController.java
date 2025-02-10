@@ -1,7 +1,7 @@
 package com.compass.e_commerce.controller;
 
 import com.compass.e_commerce.dto.sale.SaleReportListDto;
-import com.compass.e_commerce.service.SaleService;
+import com.compass.e_commerce.service.SaleServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 public class SaleController {
 
-    private final SaleService saleService;
+    private final SaleServiceImpl saleServiceImpl;
 
     @GetMapping("/v1/reportSaleDay")
     @Operation(summary = "Report Sales Day")
@@ -31,7 +31,7 @@ public class SaleController {
     @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada neste dia")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<CollectionModel<SaleReportListDto>> generationReportDay(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        var saleList  = saleService.saleReportsDay(date).stream().map(SaleReportListDto::new).toList();
+        var saleList  = saleServiceImpl.saleReportsDay(date).stream().map(SaleReportListDto::new).toList();
         if(!saleList.isEmpty()) {
             for(SaleReportListDto sale : saleList) {
                 sale.add(linkTo(methodOn(OrderController.class).getById(sale.getSaleId())).withSelfRel());
@@ -52,7 +52,7 @@ public class SaleController {
     @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada nesta Semana")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<CollectionModel<SaleReportListDto>> generationReportWeek(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        var saleList  = saleService.saleReportsWeek(date).stream().map(SaleReportListDto::new).toList();
+        var saleList  = saleServiceImpl.saleReportsWeek(date).stream().map(SaleReportListDto::new).toList();
         if(!saleList.isEmpty()) {
             for(SaleReportListDto sale : saleList) {
                 sale.add(linkTo(methodOn(OrderController.class).getById(sale.getSaleId())).withSelfRel());
@@ -74,7 +74,7 @@ public class SaleController {
     @ApiResponse(responseCode = "204", description = "Nenhuma venda encontrada neste mês")
     @ApiResponse(responseCode = "500", description = "Erro no Servidor")
     public ResponseEntity<CollectionModel<SaleReportListDto>> generationReportMonth(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        var saleList  = saleService.saleReportsMonth(date).stream().map(SaleReportListDto::new).toList();
+        var saleList  = saleServiceImpl.saleReportsMonth(date).stream().map(SaleReportListDto::new).toList();
         if(!saleList.isEmpty()) {
             for (SaleReportListDto sale : saleList) {
                 sale.add(linkTo(methodOn(OrderController.class).getById(sale.getSaleId())).withSelfRel());
