@@ -48,6 +48,13 @@ public class CartServiceImpl implements CrudService<Cart>, OptionalCrudMethods<C
     }
 
     @Override
+    public void associateCartWithUser(User user) {
+        Cart cart = new Cart();
+        create(cart);
+        user.setCart(cart);
+    }
+
+    @Override
     @Transactional
     public Cart update(Long id, CartUpdateDto cartUpdateDto) {
         Cart cart = getById(id);

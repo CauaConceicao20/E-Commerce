@@ -26,8 +26,9 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<User, UserUpdateDto>, UserService<User, UserUpdateDto>
-{
+public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<User, UserUpdateDto>,
+        UserService<User, UserUpdateDto> {
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -137,17 +138,6 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
         }
     }
 
-    /*@Transactional
-    @CacheEvict(value = "users", allEntries = true)
-    public User updateByAdmin(Long id, UserUpdateDto userUpdateDto) {
-        User foundUser = getById(id);
-        logicUpdate(foundUser, userUpdateDto);
-        userRepository.save(foundUser);
-
-        return foundUser;
-    }
-     */
-
     @Override
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
@@ -193,7 +183,7 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
         }
 
         if (!user.getOrders().isEmpty()) {
-            throw new DeletionNotAllowedException("O Usuario está associado a vendas.");
+            throw new DeletionNotAllowedException("O Usuario está associado a pedidos.");
         }
         userRepository.deleteById(id);
     }

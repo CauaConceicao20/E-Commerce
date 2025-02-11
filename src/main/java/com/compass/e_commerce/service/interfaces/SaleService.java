@@ -4,10 +4,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface SaleService<T> {
-    List<T> saleReportsDay(LocalDate localDate);
 
-    List<T> saleReportsWeek(LocalDate localDate);
+    List<T> detailedSaleReportsDay(LocalDate localDate);
 
-    List<T> saleReportsMonth(LocalDate localDate);
+    List<T> detailedSaleReportsWeek(LocalDate localDate);
+
+    List<T> detailedSaleReportsMonth(LocalDate localDate);
 
 }

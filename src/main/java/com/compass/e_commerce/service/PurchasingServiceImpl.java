@@ -37,10 +37,9 @@ public class PurchasingServiceImpl implements PurchasingService<BuyItemsDto> {
     private final OrderServiceImpl orderServiceImpl;
     private final ChargeServiceClient chargeServiceClient;
     private final EmailServiceImpl emailServiceImpl;
-    private final OrderRepository orderRepository;
     private final CartServiceImpl cartServiceImpl;
     private final GameServiceImpl gameServiceImpl;
-    private final SaleRepository saleRepository;
+    private final SaleServiceImpl saleServiceImpl;
 
     @Override
     @Transactional
@@ -113,8 +112,8 @@ public class PurchasingServiceImpl implements PurchasingService<BuyItemsDto> {
         Sale sale = new Sale(order, LocalDateTime.now(), Double.valueOf(returnDataOfJson(detailsCharge, "valor", null, "pix")));
 
         order.setStage(Stage.PAID);
-        orderRepository.save(order);
-        saleRepository.save(sale);
+        orderServiceImpl.create(order);
+        saleServiceImpl.create(sale);
 
         order.getOrderGames().stream().forEach(orderGames -> stockServiceImpl.stockReduction(orderGames.getGame(), orderGames.getQuantity()));
         emailServiceImpl.sendEmail(user.getEmail(), "Confirmação de Pagamento", "Olá " + user.getLogin()

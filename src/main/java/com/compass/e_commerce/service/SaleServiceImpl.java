@@ -4,6 +4,8 @@ import com.compass.e_commerce.model.Sale;
 import com.compass.e_commerce.repository.SaleRepository;
 import com.compass.e_commerce.service.interfaces.CrudService;
 import com.compass.e_commerce.service.interfaces.SaleService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,38 +21,40 @@ public class SaleServiceImpl implements CrudService<Sale>, SaleService<Sale> {
     private final SaleRepository saleRepository;
 
     @Override
+    @Transactional
     public Sale create(Sale entity) {
-        return null;
+        return saleRepository.save(entity);
     }
 
     @Override
     public List<Sale> getAll() {
-        return List.of();
+        return saleRepository.findAll();
     }
 
     @Override
     public Sale getById(Long id) {
-        return null;
+        return saleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Sale não encontrada com id: " + id));
     }
 
-    public List<Sale> saleReportsDay(LocalDate date) {
-        List<Sale> list = saleRepository.findByConfirmationDateAndStage(date);
-        return list;
+    @Override
+    public List<Sale> detailedSaleReportsDay(LocalDate date) {
+        return saleRepository.findByConfirmationDateAndStage(date);
     }
 
-    public List<Sale> saleReportsWeek(LocalDate date) {
+    @Override
+    public List<Sale> detailedSaleReportsWeek(LocalDate date) {
         LocalDate firstDayOfWeek = date.with(WeekFields.ISO.getFirstDayOfWeek());
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
 
-        List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfWeek, lastDayOfWeek);
-        return list;
+        return saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfWeek, lastDayOfWeek);
     }
 
-    public List<Sale> saleReportsMonth(LocalDate date) {
+    @Override
+    public List<Sale> detailedSaleReportsMonth(LocalDate date) {
         LocalDate firstDayOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDayOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
 
-        List<Sale> list = saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfMonth, lastDayOfMonth);
-        return list;
+        return saleRepository.findByConfirmationDateBetweenAndStage(firstDayOfMonth, lastDayOfMonth);
     }
 }

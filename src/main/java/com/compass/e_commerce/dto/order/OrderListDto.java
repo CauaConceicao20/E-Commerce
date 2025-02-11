@@ -25,7 +25,6 @@ public class OrderListDto extends RepresentationModel<OrderListDto> implements S
     private String userEmail;
     private Set<OrderGameListDto> games;
 
-    // Construtor para converter de Order
     public OrderListDto(Order order) {
         this(order.getId(),
                 order.getCreationTimestamp(),

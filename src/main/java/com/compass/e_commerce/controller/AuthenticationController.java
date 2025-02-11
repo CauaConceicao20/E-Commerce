@@ -74,9 +74,7 @@ public class AuthenticationController {
     @Transactional
     public ResponseEntity<UserDetailsDto> register(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userServiceImpl.convertDtoToEntity(userRegistrationDto);
-        Cart cart = new Cart();
-        cartServiceImpl.create(cart);
-        user.setCart(cart);
+        cartServiceImpl.associateCartWithUser(user);
         userServiceImpl.registerUser(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
@@ -95,9 +93,7 @@ public class AuthenticationController {
     @Transactional
     public ResponseEntity<UserDetailsDto> registerAdmin(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userServiceImpl.convertDtoToEntity(userRegistrationDto);
-        Cart cart = new Cart();
-        cartServiceImpl.create(cart);
-        user.setCart(cart);
+        cartServiceImpl.associateCartWithUser(user);
         userServiceImpl.registerUserAdmin(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
