@@ -28,7 +28,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = recoverToken(request);
         if (token != null) {
             var login = tokenService.getSubject(token);
-            var user = userRepository.findByLogin(login).orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
+            var user = userRepository.findByUsername(login).orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
 
             if (user != null && user.getActive()) {
                 var userDetails = new UserDetailsImpl(user);

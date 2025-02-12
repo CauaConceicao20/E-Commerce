@@ -1,16 +1,17 @@
 package com.compass.e_commerce.dto.user;
 
+import com.compass.e_commerce.annotations.UniqueCpf;
 import com.compass.e_commerce.annotations.UniqueEmail;
 import com.compass.e_commerce.annotations.UniqueLoginUser;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import com.compass.e_commerce.model.Address;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 
 
 public record UserRegistrationDto(
+
         @UniqueLoginUser
-        String login,
+        String username,
 
         @Size(min = 8, max = 14)
         String password,
@@ -18,7 +19,19 @@ public record UserRegistrationDto(
         @Email
         @UniqueEmail
         @NotBlank
-        String email
+        String email,
+
+        @UniqueCpf
+        @Size(min = 11, max= 11)
+        String cpf,
+
+        @Size(min = 15, max = 15)
+        @Pattern(regexp = "^\\(\\d{2}\\) \\d{5}-\\d{4}$", message = "Número de telefone inválido")
+        String phone,
+
+        @NotNull
+        @Valid
+        AddressDataDto address
 
 ) {
 }

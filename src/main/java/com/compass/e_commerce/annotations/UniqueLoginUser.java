@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = UniqueLoginUserValidator.class)
 public @interface UniqueLoginUser {
-    String message() default "O nome de login deve ser único; já existe um usuário com este nome.";
+    String message() default "O nome de username deve ser único; já existe um usuário com este nome.";
 
     Class<?>[] groups() default {};
 

@@ -22,6 +22,6 @@ public class UniqueLoginUserValidator implements ConstraintValidator<UniqueLogin
         if(login == null || userRepository == null) {
             return true;
         }
-        return !userRepository.existsByLogin(login);
+        return !userRepository.existsByUsername(login);
     }
 }

@@ -1,25 +1,26 @@
 package com.compass.e_commerce.validator;
 
-import com.compass.e_commerce.annotations.UniqueEmail;
+import com.compass.e_commerce.annotations.UniqueCpf;
 import com.compass.e_commerce.repository.UserRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 
 @Component
 @RequiredArgsConstructor
-public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
-
+public class UniqueCpfValidator implements ConstraintValidator<UniqueCpf, String> {
 
     private final UserRepository userRepository;
 
     @Override
-    public boolean isValid(String email, ConstraintValidatorContext context) {
-        if(email == null || email.trim().isEmpty()) {
+    public boolean isValid(String cpf, ConstraintValidatorContext context) {
+        if(cpf == null || cpf.trim().isEmpty()) {
             return false;
         }
-        return !userRepository.existsByEmail(email);
+        return !userRepository.existsByCpf(cpf);
     }
+
+
 }

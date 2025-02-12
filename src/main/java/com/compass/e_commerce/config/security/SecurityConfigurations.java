@@ -38,7 +38,7 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/api/auth/v1/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/v1/username").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/v1/registerUser").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/email/v1/sendEmailForgotPassword").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/v1/requestResetPassword").permitAll()
@@ -62,7 +62,7 @@ public class SecurityConfigurations {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> {
-                    form.loginPage("/login").defaultSuccessUrl("/");
+                    form.loginPage("/username").defaultSuccessUrl("/");
                 })
                 .logout(logout -> {
                     logout.logoutUrl("/logout");

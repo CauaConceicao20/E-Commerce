@@ -32,7 +32,7 @@ public class SaleReportListDto extends RepresentationModel<SaleReportListDto> im
     public SaleReportListDto(Sale sale) {
         this(sale.getId(),
                 sale.getPaymentDate(),
-                sale.getOrder().getUser().getLogin(),
+                sale.getOrder().getUser().getUsername(),
                 sale.getOrder().getOrderGames().stream()
                         .map(OrderGameListDto::new)
                         .collect(Collectors.toSet()),

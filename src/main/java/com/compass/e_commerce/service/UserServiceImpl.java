@@ -37,7 +37,6 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
-    @Transactional
     public User convertDtoToEntity(UserRegistrationDto userRegistrationDto) {
         return new User(userRegistrationDto);
     }
@@ -50,7 +49,7 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
     @Override
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
-    public void registerUser(User user) {
+    public User registerUser(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
@@ -58,13 +57,13 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
                 .orElseThrow(() -> new EntityNotFoundException("Role não encontrada"));
 
         user.setRoles(Set.of(role));
-        create(user);
+        return userRepository.save(user);
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
-    public void registerUserAdmin(User user) {
+    public User registerUserAdmin(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         Set<Role> roles = new HashSet<>(roleRepository.findAll());
@@ -73,7 +72,7 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
             throw new EntityNotFoundException("Role não encontrada");
         } else {
             user.setRoles(roles);
-            userRepository.save(user);
+            return userRepository.save(user);
         }
     }
 
@@ -94,13 +93,13 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
     @Cacheable("users")
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User não encontrado login: " + email));
+                .orElseThrow(() -> new EntityNotFoundException("User não encontrado username: " + email));
     }
 
     @Override
     @Cacheable("users")
     public User findByLogin(String login) {
-        return userRepository.findByLogin(login)
+        return userRepository.findByUsername(login)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
     }
 
@@ -154,7 +153,7 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
             throw new UserInactiveException("Usuário está inativo");
         }
         if (userUpdateDto.login() != null) {
-            user.setLogin(userUpdateDto.login());
+            user.setUsername(userUpdateDto.login());
         }
         if (userUpdateDto.email() != null) {
             if (!EMAIL_PATTERN.matcher(userUpdateDto.email()).matches()) {

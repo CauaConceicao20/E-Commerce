@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface UserService<T, D> {
 
-    void registerUser(T entity);
+    T registerUser(T entity);
 
-    void registerUserAdmin(T entity);
+    T registerUserAdmin(T entity);
 
     T findByEmail(String email);
 

@@ -1,6 +1,6 @@
 package com.compass.e_commerce.annotations;
 
-import com.compass.e_commerce.validator.UniqueRoleNameValidator;
+import com.compass.e_commerce.validator.UniqueCpfValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -11,10 +11,10 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = UniqueRoleNameValidator.class)
-public @interface UniqueNameRole {
+@Constraint(validatedBy = UniqueCpfValidator.class)
+public @interface UniqueCpf {
 
-    String message() default "O nome da Role deve ser único; já existe uma função com este nome.";
+    String message() default "O cpf deve ser único; já existe uma conta com este cpf.";
 
     Class<?>[] groups() default {};
 

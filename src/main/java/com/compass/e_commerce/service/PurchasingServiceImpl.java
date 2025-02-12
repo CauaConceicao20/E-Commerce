@@ -7,8 +7,6 @@ import com.compass.e_commerce.model.*;
 import com.compass.e_commerce.model.enums.PaymentMethod;
 import com.compass.e_commerce.model.enums.Stage;
 import com.compass.e_commerce.model.pk.OrderGamePK;
-import com.compass.e_commerce.repository.OrderRepository;
-import com.compass.e_commerce.repository.SaleRepository;
 import com.compass.e_commerce.service.interfaces.PurchasingService;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
@@ -75,7 +73,7 @@ public class PurchasingServiceImpl implements PurchasingService<BuyItemsDto> {
         order.setTotalPrice(price);
         try {
             String charge = chargeServiceClient.pixCreateCharge(
-                    new BuyDetailsDto(user.getLogin(), user.getCpf(), String.valueOf(price),
+                    new BuyDetailsDto(user.getUsername(), user.getCpf(), String.valueOf(price),
                     "Campo 1", "Vazio", "Campo 2", "Vazio")
             );
             String jsonValueTxId = returnDataOfJson(charge, "txid", null, null);
@@ -116,7 +114,7 @@ public class PurchasingServiceImpl implements PurchasingService<BuyItemsDto> {
         saleServiceImpl.create(sale);
 
         order.getOrderGames().stream().forEach(orderGames -> stockServiceImpl.stockReduction(orderGames.getGame(), orderGames.getQuantity()));
-        emailServiceImpl.sendEmail(user.getEmail(), "Confirmação de Pagamento", "Olá " + user.getLogin()
+        emailServiceImpl.sendEmail(user.getEmail(), "Confirmação de Pagamento", "Olá " + user.getUsername()
                 + "\nRecebemos o Pagamento referente ao seu pedido" + "\nItems do pedido: " + order.getOrderGames() + "\nValor Total: " + order.getTotalPrice());
     }
 

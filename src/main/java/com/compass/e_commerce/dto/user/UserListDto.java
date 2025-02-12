@@ -26,7 +26,7 @@ public class UserListDto extends RepresentationModel<UserListDto> {
     public UserListDto(User user) {
         this(
                 user.getId(),
-                user.getLogin(),
+                user.getUsername(),
                 user.getEmail(),
                 user.getRoles().stream()
                         .map(Role::getName)

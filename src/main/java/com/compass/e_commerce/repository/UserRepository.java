@@ -17,10 +17,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByIdAdmin(@Param("id") Long id, @Param("roleName") RoleNameEnum roleName);
     @Query("SELECT u FROM User u JOIN u.roles r WHERE u.id = :id AND r.name = :roleName AND SIZE(u.roles) = 1")
     Optional<User> findByIdUser(@Param("id") Long id, @Param("roleName") RoleNameEnum roleName);
-    Optional<User> findByLogin(String login);
+    Optional<User> findByUsername(String username);
     Optional<User> findByCpf(String cpf);
     List<User> findByActiveTrue();
-    boolean existsByLogin(String login);
+    boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    boolean existsByCpf(String cpf);
     Optional<User> findByEmail(String email);
 }

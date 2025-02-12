@@ -18,7 +18,7 @@ public class UserDetailsDto extends RepresentationModel<UserDetailsDto> {
 
     public UserDetailsDto(User user) {
         this.id = user.getId();
-        this.login = user.getLogin();
+        this.login = user.getUsername();
         this.email = user.getEmail();
     }
 }

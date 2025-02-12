@@ -26,7 +26,7 @@ public class User implements Serializable {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String login;
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -34,11 +34,11 @@ public class User implements Serializable {
     @Column(unique = true)
     private String email;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 14)
     @CPF
     private String cpf;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 11)
     private String phone;
 
     @Embedded
@@ -59,9 +59,12 @@ public class User implements Serializable {
     private boolean active;
 
     public User(UserRegistrationDto userRegistrationDto) {
-        this.login = userRegistrationDto.login();
+        this.username = userRegistrationDto.username();
         this.password = userRegistrationDto.password();
         this.email = userRegistrationDto.email();
+        this.cpf = userRegistrationDto.cpf();
+        this.phone = userRegistrationDto.phone();
+        this.address = new Address(userRegistrationDto.address());
         this.active = true;
 
     }
@@ -69,6 +72,7 @@ public class User implements Serializable {
     public void isActive() {
         this.active = true;
     }
+
     @CacheEvict(value = "users", allEntries = true)
     public void isInactive() {
         this.active = false;

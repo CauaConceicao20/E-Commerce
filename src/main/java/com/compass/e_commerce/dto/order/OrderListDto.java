@@ -28,7 +28,7 @@ public class OrderListDto extends RepresentationModel<OrderListDto> implements S
     public OrderListDto(Order order) {
         this(order.getId(),
                 order.getCreationTimestamp(),
-                order.getUser().getLogin(),
+                order.getUser().getUsername(),
                 order.getUser().getEmail(),
                 order.getOrderGames().stream()
                         .map(OrderGameListDto::new)

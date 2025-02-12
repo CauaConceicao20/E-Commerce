@@ -74,13 +74,13 @@ public class AuthenticationController {
     @Transactional
     public ResponseEntity<UserDetailsDto> register(@RequestBody @Valid UserRegistrationDto userRegistrationDto, UriComponentsBuilder uriBuilder) {
         User user = userServiceImpl.convertDtoToEntity(userRegistrationDto);
-        cartServiceImpl.associateCartWithUser(user);
         userServiceImpl.registerUser(user);
+        cartServiceImpl.associateCartWithUser(user);
 
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
         UserDetailsDto userDetailsDto = new UserDetailsDto(user);
         UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
-        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("username"));
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).registerAdmin(null, dummyUriBuilder)).withRel("register admin"));
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).resetPassword("token", null)).withRel("resetPassword"));
         return ResponseEntity.created(uri).body(userDetailsDto);
@@ -99,7 +99,7 @@ public class AuthenticationController {
         var uri = uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri();
         UserDetailsDto userDetailsDto = new UserDetailsDto(user);
         UriComponentsBuilder dummyUriBuilder = UriComponentsBuilder.newInstance();
-        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("login"));
+        userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).login(null)).withRel("username"));
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).register(null, dummyUriBuilder)).withRel("register"));
         userDetailsDto.add(linkTo(methodOn(AuthenticationController.class).resetPassword("token", null)).withRel("resetPassword"));
         return ResponseEntity.created(uri).body(userDetailsDto);

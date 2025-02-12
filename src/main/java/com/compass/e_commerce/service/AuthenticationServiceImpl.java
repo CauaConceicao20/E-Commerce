@@ -19,8 +19,8 @@ public class AuthenticationServiceImpl implements UserDetailsService, Authorizat
 
     @Override
     public UserDetails loadUserByUsername(String login) {
-        User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o login: " + login));
+        User user = userRepository.findByUsername(login)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o username: " + login));
         return new UserDetailsImpl(user);
     }
 
