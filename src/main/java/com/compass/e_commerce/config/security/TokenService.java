@@ -105,21 +105,6 @@ public class TokenService {
         }
     }
 
-    /*
-    public String getTokenFromCache(String key) {
-        Cache cache = cacheManager.getCache("token");
-
-        if (cache != null) {
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-            if (valueWrapper != null) {
-                return (String) valueWrapper.get();
-            }
-        }
-        return null;
-    }
-
-     */
-
     private Instant generateExpirationDate() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }

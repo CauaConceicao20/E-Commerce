@@ -1,5 +1,6 @@
 package com.compass.e_commerce.service;
 
+import com.compass.e_commerce.dto.user.AddressDataDto;
 import com.compass.e_commerce.dto.user.UserRegistrationDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
 import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
@@ -34,9 +35,6 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationServiceImpl authenticationServiceImpl;
 
-    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
-
     public User convertDtoToEntity(UserRegistrationDto userRegistrationDto) {
         return new User(userRegistrationDto);
     }
@@ -50,6 +48,7 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
     public User registerUser(User user) {
+
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
@@ -69,7 +68,7 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
         Set<Role> roles = new HashSet<>(roleRepository.findAll());
 
         if (roles.isEmpty()) {
-            throw new EntityNotFoundException("Role não encontrada");
+            throw new EntityNotFoundException("Roles não foram encontradas");
         } else {
             user.setRoles(roles);
             return userRepository.save(user);
@@ -98,8 +97,8 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
 
     @Override
     @Cacheable("users")
-    public User findByLogin(String login) {
-        return userRepository.findByUsername(login)
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario ou senha invalidos ou incorretos"));
     }
 
@@ -112,28 +111,35 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
 
     @Override
     @Transactional
-    public void changePassword(User user, String newPassword) {
-        user.setPassword(newPassword);
-        userRepository.save(user);
+    public User changePassword(User user, String newPassword) {
+        String encryptedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encryptedPassword);
+        return userRepository.save(user);
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "users", allEntries = true)
     public User update(Long id, UserUpdateDto userUpdateDto) {
-        User authenticadeUser = getById(authenticationServiceImpl.getAuthenticatedUserId());
-        boolean isAdmin = authenticadeUser.getRoles().stream()
-                .anyMatch(role -> role.getName() == RoleNameEnum.ADMIN);
+        User authenticatedUser = getById(authenticationServiceImpl.getAuthenticatedUserId());
+        boolean isAdmin = authenticatedUser.getRoles().stream()
+                .anyMatch(role -> role.getName().equals(RoleNameEnum.ADMIN));
 
-        if (id == null && authenticadeUser.getActive() && isAdmin) {
-            logicUpdate(authenticadeUser, userUpdateDto);
-            return authenticadeUser;
-        } else if (id != null) {
-            User user = getById(id);
-            logicUpdate(user, userUpdateDto);
-            return user;
+        if (id == null) {
+            if (authenticatedUser.getActive() && isAdmin) {
+                logicUpdate(authenticatedUser, userUpdateDto);
+                return userRepository.save(authenticatedUser);
+            } else {
+                throw new IllegalArgumentException("Usuário não tem permissão para atualizar ou está inativo.");
+            }
         } else {
-            throw new IllegalArgumentException("ID não fornecido e usuário não tem permissão para atualizar.");
+            User user = getById(id);
+            if (user != null && (user.getActive() && isAdmin)) {
+                logicUpdate(user, userUpdateDto);
+                return userRepository.save(user);
+            } else {
+                throw new IllegalArgumentException("ID não corresponde a um usuário válido ou permissão insuficiente.");
+            }
         }
     }
 
@@ -143,39 +149,94 @@ public class UserServiceImpl implements CrudService<User>, OptionalCrudMethods<U
     public User updateMyProfile(UserUpdateDto userUpdateDto) {
         User user = getById(authenticationServiceImpl.getAuthenticatedUserId());
         logicUpdate(user, userUpdateDto);
-        userRepository.save(user);
-        return user;
+        return userRepository.save(user);
     }
 
-    @Override
-    public void logicUpdate(User user, UserUpdateDto userUpdateDto) {
+    private void logicUpdate(User user, UserUpdateDto userUpdateDto) {
+        updatePersonalDataLogic(user, userUpdateDto);
+        updateAddressLogic(user, userUpdateDto);
+    }
+
+    private void updatePersonalDataLogic(User user, UserUpdateDto userUpdateDto) {
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@(hotmail\\.com|gmail\\.com)$";
+        Pattern pattern = null;
+
         if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");
         }
+
         if (userUpdateDto.login() != null) {
+            if(userUpdateDto.login().isBlank()) {
+                throw new IllegalArgumentException("Username não deve está vazia");
+            }
             user.setUsername(userUpdateDto.login());
         }
         if (userUpdateDto.email() != null) {
-            if (!EMAIL_PATTERN.matcher(userUpdateDto.email()).matches()) {
+            pattern = Pattern.compile(emailRegex);
+            if (!pattern.matcher(userUpdateDto.email()).matches()) {
                 throw new IllegalArgumentException("O e-mail fornecido é inválido.");
             }
             user.setEmail(userUpdateDto.email());
         }
         if (userUpdateDto.password() != null) {
             if (userUpdateDto.password().length() < 8 || userUpdateDto.password().length() > 14) {
-                throw new IllegalArgumentException("A senha deve ter entre 8 e 14 caracteres.");
-            } else {
+                throw new IllegalArgumentException(" Password deve ter entre 8 e 14 caracteres.");
+            }
                 String encryptedPassword = passwordEncoder.encode(userUpdateDto.password());
                 user.setPassword(encryptedPassword);
+        }
+        if(userUpdateDto.phone() != null) {
+            if(!(userUpdateDto.phone().length() == 11 && userUpdateDto.phone().matches("\\d+"))) {
+                throw new IllegalArgumentException("O Phone fornecido é inválido");
             }
+            user.setPhone(userUpdateDto.phone());
+        }
+    }
+
+    private void updateAddressLogic(User user, UserUpdateDto userUpdateDto){
+        String regexCep = "^(\\d{5}-\\d{3}|\\d{8})$";
+        Pattern cepPattern = Pattern.compile(regexCep);
+
+        if (!user.getActive()) {
+            throw new UserInactiveException("Usuário está inativo");
+        }
+
+        if(userUpdateDto.addressDataDto().street() != null) {
+            if(userUpdateDto.addressDataDto().street().isBlank()) {
+                throw new IllegalArgumentException("street não deve está vazia");
+            }
+            user.getAddress().setStreet(userUpdateDto.addressDataDto().street());
+        }
+        if(userUpdateDto.addressDataDto().number() != null) {
+            if(userUpdateDto.addressDataDto().number() <= 0) {
+                throw new IllegalArgumentException("O numero não pode ser zero ou menos");
+            }
+            user.getAddress().setNumber(userUpdateDto.addressDataDto().number());
+        }
+        if(userUpdateDto.addressDataDto().city() != null) {
+            if(userUpdateDto.addressDataDto().city().isBlank()) {
+                throw new IllegalArgumentException("city não deve está vazia");
+            }
+            user.getAddress().setCity(userUpdateDto.addressDataDto().city());
+        }
+        if(userUpdateDto.addressDataDto().state() != null) {
+            if(userUpdateDto.addressDataDto().state().trim().isBlank()) {
+                throw new IllegalArgumentException("state não deve está vazia");
+            }
+            user.getAddress().setState(userUpdateDto.addressDataDto().state());
+        }
+        if(userUpdateDto.addressDataDto().postalCode() != null) {
+            if(!cepPattern.matcher(userUpdateDto.addressDataDto().postalCode()).matches()) {
+                throw new IllegalArgumentException("Cep está incorreto");
+            }
+            user.getAddress().setPostalCode(userUpdateDto.addressDataDto().postalCode());
         }
     }
 
     @Override
     @CacheEvict(value = "users", allEntries = true)
     public void delete(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User não encontrado com o id: " + id));
+        User user = getById(id);
 
         if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");

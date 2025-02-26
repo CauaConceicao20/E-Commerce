@@ -32,8 +32,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     public void processPasswordReset(String newPassword, String token) {
         try {
             String login = tokenService.getSubject(token);
-            User user = userServiceImpl.findByLogin(login);
-            userServiceImpl.changePassword(user, passwordEncoder.encode(newPassword));
+            User user = userServiceImpl.findByUsername(login);
+            userServiceImpl.changePassword(user, newPassword);
 
         } catch (JWTVerificationException exception) {
             throw new JWTVerificationException("Token inválido ou expirado", exception);

@@ -4,20 +4,19 @@ import java.util.List;
 
 public interface UserService<T, D> {
 
+
     T registerUser(T entity);
 
     T registerUserAdmin(T entity);
 
     T findByEmail(String email);
 
-    T findByLogin(String login);
+    T findByUsername(String username);
 
     T findByCpf(String cpf);
 
-    void changePassword(T entity, String newPassword);
+    T changePassword(T entity, String newPassword);
 
     T updateMyProfile(D dto);
-
-    void logicUpdate(T entity, D dto);
 
 }

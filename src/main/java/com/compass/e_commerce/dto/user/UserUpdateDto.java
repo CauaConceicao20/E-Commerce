@@ -10,6 +10,10 @@ public record UserUpdateDto(
 
         String email,
 
-        String password
+        String password,
+
+        String phone,
+
+        AddressDataDto addressDataDto
 ) {
 }

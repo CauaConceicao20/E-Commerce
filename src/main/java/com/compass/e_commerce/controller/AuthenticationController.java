@@ -47,7 +47,7 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "500", description = "Erro no servidor")
     @Transactional
     public ResponseEntity<UserLoginDetailsDto> login(@RequestBody @Valid UserAuthenticationDto authenticationDto) {
-        var user = userServiceImpl.findByLogin(authenticationDto.login());
+        var user = userServiceImpl.findByUsername(authenticationDto.login());
 
         if (!user.getActive()) {
             throw new UserInactiveException("Usuário está inativo");

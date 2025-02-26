@@ -29,7 +29,7 @@ public class Stock implements Serializable {
     @OneToOne(mappedBy = "stock")
     private Game game;
 
-    public Stock(StockDto stockDto) {
+    public  Stock(StockDto stockDto) {
         this.quantity = stockDto.quantity();
     }
 
