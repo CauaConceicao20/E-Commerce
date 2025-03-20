@@ -2,8 +2,13 @@ package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.user.AddressDataDto;
 import com.compass.e_commerce.dto.user.UserUpdateDto;
+import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
+import com.compass.e_commerce.exception.personalized.UserInactiveException;
 import com.compass.e_commerce.model.*;
+import com.compass.e_commerce.model.enums.GenderEnum;
+import com.compass.e_commerce.model.enums.PlatformEnum;
 import com.compass.e_commerce.model.enums.RoleNameEnum;
+import com.compass.e_commerce.model.pk.CartGameItemPK;
 import com.compass.e_commerce.repository.RoleRepository;
 import com.compass.e_commerce.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -56,17 +61,19 @@ class UserServiceImplTest {
         Role roleUser = new Role(1L, RoleNameEnum.USER, null);
         Role roleAdmin = new Role(2L, RoleNameEnum.ADMIN, null);
 
+
         setRole1.add(roleUser);
         setRole2.add(roleAdmin);
         setRole2.add(roleUser);
 
         commonUser = new User(1L, "Diogo", "123456789a", "diogodev@gmail.com", "67676666777",
-                "(00) 90000-2900", new Address(), null, setOrder , setRole1, true);
+                "(00) 90000-2900", new Address(), null, setOrder, setRole1, true);
 
-        adminUser = new User(2L, "Daniela", "123456789b",  "daniela@gmail.com", "66677666777",
+
+        adminUser = new User(2L, "Daniela", "123456789b", "daniela@gmail.com", "66677666777",
                 "(00) 90220-2900", new Address(), null, setOrder, setRole2, true);
 
-        inactiveUser = new User(3L, "Pedro", "123456789c",  "pedro@gmail.com", "66677776777",
+        inactiveUser = new User(3L, "Pedro", "123456789c", "pedro@gmail.com", "66677776777",
                 "(00) 92220-2920", new Address(), null, setOrder, setRole1, false);
 
     }
@@ -93,6 +100,7 @@ class UserServiceImplTest {
 
         assertThrows(EntityNotFoundException.class, () -> userService.registerUser(commonUser));
     }
+
     //TESTES PARA registerAdmin
     @Test
     void checkIfTheAdminIsSuccessfullyRegistered() {
@@ -115,6 +123,7 @@ class UserServiceImplTest {
 
         assertThrows(EntityNotFoundException.class, () -> userService.registerUserAdmin(commonUser));
     }
+
     //TESTES PARA getById()
     @Test
     void shouldReturnUserWhenIdExists() {
@@ -141,6 +150,7 @@ class UserServiceImplTest {
 
         assertEquals("User não encontrado id: 1", exception.getMessage());
     }
+
     //TESTE PARA getAll()
     @Test
     void shouldReturnListOfUsersWhenUsersAreActive() {
@@ -154,6 +164,7 @@ class UserServiceImplTest {
         assertNotNull(result);
         assertEquals(2, result.size());
     }
+
     //TESTES PARA findByEmail(), findByUsername(), findByCpf()
     @ParameterizedTest
     @CsvSource({
@@ -217,6 +228,7 @@ class UserServiceImplTest {
         assertNotNull(result);
         assertEquals(commonUser, result);
     }
+
     //TESTE PARA changePassword()
     @Test
     void ChangeUserPasswordSuccessfully() {
@@ -227,6 +239,7 @@ class UserServiceImplTest {
 
         assertEquals("$2a$12$amenETO.QdEeJEkxMmG.meWVTnzlIc7HS4aGXrO5piMwbcEcD0lJ.", userUpdated.getPassword());
     }
+
     //TESTES PARA update()
     @Test
     void userAdminUpdatesHimselfSuccessfully() {
@@ -338,7 +351,7 @@ class UserServiceImplTest {
 
     @Test
     void throwsExceptionIfStringFieldIsEmpty() {
-        var userUpdateDto = new UserUpdateDto("", "useratualizado@gmail.com", "1234567910" ,null,
+        var userUpdateDto = new UserUpdateDto("", "useratualizado@gmail.com", "1234567910", null,
                 new AddressDataDto(null, null, null, null, null, null));
         Mockito.when(authenticationServices.getAuthenticatedUserId()).thenReturn(2L);
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.of(adminUser));
@@ -348,7 +361,7 @@ class UserServiceImplTest {
 
     @Test
     void throwsExceptionIfEmailIsInvalid() {
-        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gttil.com", "1234567910" ,null,
+        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gttil.com", "1234567910", null,
                 new AddressDataDto(null, null, null, null, null, null));
         Mockito.when(authenticationServices.getAuthenticatedUserId()).thenReturn(2L);
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.of(adminUser));
@@ -358,7 +371,7 @@ class UserServiceImplTest {
 
     @Test
     void throwsExceptionIfPasswordIsInvalid() {
-        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "12345" ,null,
+        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "12345", null,
                 new AddressDataDto(null, null, null, null, null, null));
         Mockito.when(authenticationServices.getAuthenticatedUserId()).thenReturn(2L);
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.of(adminUser));
@@ -368,7 +381,7 @@ class UserServiceImplTest {
 
     @Test
     void throwsExceptionIfPhoneIsInvalid() {
-        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "1234567910" ,"(71) 92333-6300",
+        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "1234567910", "(71) 92333-6300",
                 new AddressDataDto(null, null, null, null, null, null));
         Mockito.when(authenticationServices.getAuthenticatedUserId()).thenReturn(2L);
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.of(adminUser));
@@ -378,7 +391,7 @@ class UserServiceImplTest {
 
     @Test
     void throwsExceptionIfPostalCodeIsInvalid() {
-        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "1234567910" ,null,
+        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "1234567910", null,
                 new AddressDataDto(null, null, null, null, null, "4333-200"));
         Mockito.when(authenticationServices.getAuthenticatedUserId()).thenReturn(2L);
         Mockito.when(userRepository.findById(2L)).thenReturn(Optional.of(adminUser));
@@ -388,11 +401,50 @@ class UserServiceImplTest {
 
     @Test
     void throwsExceptionIfNoAuthenticatedUser() {
-        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "1234567910" ,null,
+        var userUpdateDto = new UserUpdateDto("UserAtualizado", "useratualizado@gmail.com", "1234567910", null,
                 new AddressDataDto(null, null, null, null, null, "4333200"));
         Mockito.when(authenticationServices.getAuthenticatedUserId()).thenReturn(100L);
         Mockito.when(userRepository.findById(100L)).thenReturn(null);
 
         assertThrows(NullPointerException.class, () -> userService.updateMyProfile(userUpdateDto));
+    }
+
+    @Test
+    void shouldDeleteUserSuccessfully() {
+        List<CartGameItem> cartGameItems = new ArrayList<>();
+        Game game = new Game(1L, "GameTeste", "Descrição teste", GenderEnum.ACTION, null, PlatformEnum.MOBILE,
+                1.0, cartGameItems, null, true);
+        Cart cart = new Cart(1L, 2, 2.0, cartGameItems, commonUser);
+        CartGameItem cartGameItem = new CartGameItem(new CartGameItemPK(cart, game), 2);
+
+        cart.getCartGameItem().add(cartGameItem);
+        game.getCartGameItem().add(cartGameItem);
+
+        commonUser.setCart(cart);
+
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(commonUser));
+
+        Mockito.doNothing().when(userRepository).deleteById(1L);
+
+        userService.delete(1L);
+
+        Mockito.verify(userRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserIsInactive() {
+        Mockito.when(userRepository.findById(3L)).thenReturn(Optional.of(inactiveUser));
+        assertThrows(UserInactiveException.class, () -> userService.delete(3L));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserHasOrders() {
+        Set<Order> orders = new HashSet<>();
+        Order order = new Order();
+        orders.add(order);
+        commonUser.setOrders(orders);
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(commonUser));
+
+        assertThrows(DeletionNotAllowedException.class, () -> userService.delete(1L));
     }
 }
