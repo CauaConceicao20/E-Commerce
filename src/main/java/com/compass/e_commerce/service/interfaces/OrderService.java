@@ -1,10 +1,8 @@
 package com.compass.e_commerce.service.interfaces;
 
-public interface OrderService<T, SG, OR>{
+public interface OrderService<T, OR>{
 
     T confirmedOrder(Long id);
-
-    T swapGame(SG swapGameDto);
 
     T convertDtoToEntity(OR OrderRegistrationDto);
 }

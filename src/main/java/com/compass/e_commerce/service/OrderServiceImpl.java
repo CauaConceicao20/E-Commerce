@@ -1,9 +1,6 @@
 package com.compass.e_commerce.service;
 
 import com.compass.e_commerce.dto.order.OrderRegistrationDto;
-import com.compass.e_commerce.dto.order.OrderUpdateDto;
-import com.compass.e_commerce.dto.order.SwapGameDto;
-import com.compass.e_commerce.exception.personalized.DeletionNotAllowedException;
 import com.compass.e_commerce.exception.personalized.SaleAlreadyConfirmedException;
 import com.compass.e_commerce.model.Game;
 import com.compass.e_commerce.model.Order;
@@ -11,10 +8,8 @@ import com.compass.e_commerce.model.OrderGames;
 import com.compass.e_commerce.model.User;
 import com.compass.e_commerce.model.enums.Stage;
 import com.compass.e_commerce.model.pk.OrderGamePK;
-import com.compass.e_commerce.repository.OrderGameRepository;
 import com.compass.e_commerce.repository.OrderRepository;
 import com.compass.e_commerce.service.interfaces.CrudService;
-import com.compass.e_commerce.service.interfaces.OptionalCrudMethods;
 import com.compass.e_commerce.service.interfaces.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -26,18 +21,16 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-public class OrderServiceImpl implements CrudService<Order>, OptionalCrudMethods<Order, OrderUpdateDto>, OrderService<Order, SwapGameDto, OrderRegistrationDto> {
+public class OrderServiceImpl implements CrudService<Order>, OrderService<Order, OrderRegistrationDto> {
 
     private final UserServiceImpl userServiceImpl;
     private final GameServiceImpl gameServiceImpl;
     private final AuthenticationServiceImpl authenticationServiceImpl;
     private final StockServiceImpl stockServiceImpl;
     private final OrderRepository orderRepository;
-    private final OrderGameRepository orderGameRepository;
 
     @Override
     public Order convertDtoToEntity(OrderRegistrationDto dataDto) {
@@ -85,35 +78,6 @@ public class OrderServiceImpl implements CrudService<Order>, OptionalCrudMethods
     @Override
     @Transactional
     @CacheEvict(value = "orders", allEntries = true)
-    public Order update(Long id, OrderUpdateDto orderUpdateDto) {
-        Order order = getById(id);
-
-        if (order.getStage() == Stage.UNCONFIRMED) {
-            for (OrderUpdateDto.OrderGameUpdateDto orderGameUpdateDto : orderUpdateDto.games()) {
-                OrderGames existingOrderGames = order.getOrderGames().stream()
-                        .filter(saleGame -> saleGame.getGame().getId().equals(orderGameUpdateDto.gameId()))
-                        .findFirst()
-                        .orElse(null);
-
-                if (existingOrderGames == null) {
-                    throw new NoSuchElementException("Id do game não existe");
-                }
-                stockServiceImpl.adjustStockBasedOnSaleQuantityChange(existingOrderGames, orderGameUpdateDto.quantity());
-                existingOrderGames.setQuantity(orderGameUpdateDto.quantity());
-            }
-        } else {
-            throw new SaleAlreadyConfirmedException("Essa venda já foi confirmada");
-        }
-        double totalPrice = order.getOrderGames().stream()
-                .mapToDouble(orderGame -> orderGame.getGame().getPrice() * orderGame.getQuantity())
-                .sum();
-        order.setTotalPrice(totalPrice);
-        return orderRepository.save(order);
-    }
-
-    @Override
-    @Transactional
-    @CacheEvict(value = "orders", allEntries = true)
     public Order confirmedOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Não existe Order com esse id"));
@@ -128,76 +92,7 @@ public class OrderServiceImpl implements CrudService<Order>, OptionalCrudMethods
         });
 
         order.setStage(Stage.CONFIRMED);
-        //order.setConfirmationTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         return orderRepository.save(order);
-    }
-
-    @Override
-    @Transactional
-    @CacheEvict(value = "orders", allEntries = true)
-    public Order swapGame(SwapGameDto swapGameDto) {
-        Order order = orderRepository.findById(swapGameDto.id())
-                .orElseThrow(() -> new EntityNotFoundException("Não existe Order com esse id"));
-
-        if (order.getStage() == Stage.CONFIRMED) {
-            throw new SaleAlreadyConfirmedException("Essa venda já foi confirmada");
-        }
-
-        for (SwapGameDto.SwapGameListDto swapGame : swapGameDto.swapGames()) {
-            if (swapGame.currentGameId().equals(swapGame.newGameId())) {
-                throw new IllegalArgumentException("O ID do novo jogo não pode ser igual ao ID do jogo atual.");
-            }
-
-            boolean newGameAlreadyInSale = order.getOrderGames().stream()
-                    .anyMatch(orderGame -> orderGame.getGame().getId().equals(swapGame.newGameId()));
-            if (newGameAlreadyInSale) {
-                throw new IllegalArgumentException("O ID do novo jogo já existe na venda.");
-            }
-
-            OrderGames existingOrderGames = order.getOrderGames().stream()
-                    .filter(orderGame -> orderGame.getGame().getId().equals(swapGame.currentGameId()))
-                    .findFirst()
-                    .orElseThrow(() -> new NoSuchElementException("ID do jogo não encontrado na venda"));
-
-            /*
-            Game oldGame = existingOrderGames.getGame();
-            int quantity = existingOrderGames.getQuantity();
-             */
-
-            order.getOrderGames().remove(existingOrderGames);
-            orderGameRepository.delete(existingOrderGames);
-            orderRepository.flush();
-
-            Game newGame = gameServiceImpl.getById(swapGame.newGameId());
-
-            if (swapGame.quantity() > newGame.getStock().getQuantity()) {
-                throw new IllegalArgumentException("Quantidade do novo jogo excede o estoque disponível.");
-            }
-
-            OrderGames newOrderGames = new OrderGames();
-            newOrderGames.setId(new OrderGamePK(order, newGame));
-            newOrderGames.setQuantity(swapGame.quantity());
-
-            order.getOrderGames().add(newOrderGames);
-        }
-        double totalPrice = order.getOrderGames().stream()
-                .mapToDouble(orderGame -> orderGame.getId().getGame().getPrice() * orderGame.getQuantity())
-                .sum();
-
-        order.setTotalPrice(totalPrice);
-        return orderRepository.save(order);
-    }
-
-    @Override
-    @CacheEvict(value = "orders", allEntries = true)
-    public void delete(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Não existe Order com esse id"));
-
-        if (order.getStage() == Stage.CONFIRMED) {
-            throw new DeletionNotAllowedException("A Venda já foi confirmada");
-        }
-        orderRepository.deleteById(id);
     }
 }

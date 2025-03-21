@@ -28,7 +28,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class OrderController {
 
     private final OrderServiceImpl orderServiceImpl;
-    private final PurchasingServiceImpl purchasingService;
 
 
     @PostMapping("/v1/createRole")
@@ -78,8 +77,6 @@ public class OrderController {
         var sale = orderServiceImpl.getById(id);
         OrderDetailsDto orderDetailsDto = new OrderDetailsDto(sale);
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).create(null, null)).withRel("createRole"));
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).updateSale(sale.getId(), null)).withRel("update"));
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).delete(sale.getId())).withRel("delete"));
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).list()).withRel("allSales"));
 
         return ResponseEntity.ok().body(orderDetailsDto);
@@ -103,58 +100,5 @@ public class OrderController {
         orderDetailsDto.add(linkTo(methodOn(OrderController.class).list()).withRel("allSales"));
 
         return ResponseEntity.ok().body(orderDetailsDto);
-    }
-
-
-    @PutMapping("/v1/update/{id}")
-    @Operation(summary = "Update Order")
-    @ApiResponse(responseCode = "200", description = "Atualização bem sucedida")
-    @ApiResponse(responseCode = "400", description = "Dado incorretos")
-    @ApiResponse(responseCode = "404", description = "Venda não encontrada")
-    @ApiResponse(responseCode = "409", description = "A venda ja foi confirmada")
-    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
-    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<OrderDetailsDto> updateSale(@PathVariable Long id, @RequestBody @Valid OrderUpdateDto orderUpdateDto) {
-        var sale = orderServiceImpl.update(id, orderUpdateDto);
-        OrderDetailsDto orderDetailsDto = new OrderDetailsDto(sale);
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).getById(sale.getId())).withSelfRel());
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).create(null, null)).withRel("createRole"));
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).list()).withRel("allSale"));
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).delete(sale.getId())).withRel("delete"));
-
-        return ResponseEntity.ok().body(orderDetailsDto);
-    }
-
-    @PutMapping("/v1/swap")
-    @Operation(summary = "Exchange Games in Order")
-    @ApiResponse(responseCode = "200", description = "Troca bem sucedida")
-    @ApiResponse(responseCode = "400", description = "Dado incorretos")
-    @ApiResponse(responseCode = "404", description = "Venda não encontrada")
-    @ApiResponse(responseCode = "409", description = "A venda ja foi confirmada")
-    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
-    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<OrderDetailsDto> swapGame(@RequestBody @Valid SwapGameDto swapGameDto) {
-        Order order = orderServiceImpl.swapGame(swapGameDto);
-        OrderDetailsDto orderDetailsDto = new OrderDetailsDto(order);
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).getById(order.getId())).withSelfRel());
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).create(null, null)).withRel("createRole"));
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).list()).withRel("allSale"));
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).updateSale(order.getId(), null)).withRel("update"));
-        orderDetailsDto.add(linkTo(methodOn(OrderController.class).delete(order.getId())).withRel("delete"));
-
-        return ResponseEntity.ok().body(new OrderDetailsDto(order));
-    }
-
-    @DeleteMapping("/v1/delete/{id}")
-    @Operation(summary = "Delete Order")
-    @ApiResponse(responseCode = "204", description = "Deleção bem sucedida")
-    @ApiResponse(responseCode = "404", description = "Order não encontrado")
-    @ApiResponse(responseCode = "409", description = "Order já foi confirmada")
-    @ApiResponse(responseCode = "503", description = "Falha de conexão com Redis")
-    @ApiResponse(responseCode = "500", description = "Erro no Servidor")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        orderServiceImpl.delete(id);
-
-        return ResponseEntity.noContent().build();
     }
 }
